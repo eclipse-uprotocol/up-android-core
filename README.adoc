@@ -1,0 +1,20 @@
+= Android uPlatform Implementation
+
+== Overview
+Android uPlatform implementation using the Binder uTransport.
+
+.Projects
+[width=100%",cols="30%,70%"]
+|===
+|Name |Description
+
+|link:up-core-android/README.adoc[*uCore Service*]
+|Android service that includes uBus, uSubscription and uTwin core services
+
+|link:up-discovery-android/README.adoc[*uDiscovery Service*]
+|Android service that contains uDiscovery core service
+
+|link:up-example-android/README.adoc[*Example*]
+|Android applications demonstrating implementations of uService and uClient entities
+
+|===
