@@ -34,7 +34,7 @@ import org.eclipse.uprotocol.rpc.CallOptions;
 import org.eclipse.uprotocol.rpc.RpcClient;
 import org.eclipse.uprotocol.transport.UListener;
 import org.eclipse.uprotocol.transport.builder.UAttributesBuilder;
-import org.eclipse.uprotocol.uri.builder.UResourceBuilder;
+import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
 import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
@@ -59,7 +59,7 @@ public class RpcExecutor implements RpcClient, UListener {
     private final UBus mUBus;
     private final UUri mResponseUri;
     private final IBinder mClientToken;
-    private final Map<UUID, CompletableFuture<UPayload>> mRequests = new ConcurrentHashMap<>();
+    private final Map<UUID, CompletableFuture<UMessage>> mRequests = new ConcurrentHashMap<>();
 
     public static RpcExecutor empty() {
         return EMPTY;
@@ -86,7 +86,7 @@ public class RpcExecutor implements RpcClient, UListener {
     }
 
     @Override
-    public @NonNull CompletionStage<UPayload> invokeMethod(@NonNull UUri methodUri, @NonNull UPayload requestPayload,
+    public @NonNull CompletionStage<UMessage> invokeMethod(@NonNull UUri methodUri, @NonNull UPayload requestPayload,
             @NonNull CallOptions options) {
         final UAttributesBuilder builder = UAttributesBuilder.request(REQUEST_PRIORITY, methodUri, options.timeout());
         options.token().ifPresent(builder::withToken);
@@ -96,7 +96,7 @@ public class RpcExecutor implements RpcClient, UListener {
                 .setAttributes(builder.build())
                 .build();
 
-        final CompletableFuture<UPayload> responseFuture = new CompletableFuture<>();
+        final CompletableFuture<UMessage> responseFuture = new CompletableFuture<>();
         responseFuture.whenComplete((response, exception) -> mRequests.remove(requestMessage.getAttributes().getId()));
         mRequests.put(requestMessage.getAttributes().getId(), responseFuture);
 
@@ -122,11 +122,11 @@ public class RpcExecutor implements RpcClient, UListener {
         final UAttributes attributes = message.getAttributes();
         if (attributes.getType() == UMessageType.UMESSAGE_TYPE_RESPONSE) {
             final UUID requestId = attributes.getReqid();
-            final CompletableFuture<UPayload> responseFuture = mRequests.remove(requestId);
+            final CompletableFuture<UMessage> responseFuture = mRequests.remove(requestId);
             if (responseFuture != null) {
                 final UCode code = UCode.forNumber(attributes.getCommstatus());
                 if (code == UCode.OK) {
-                    responseFuture.complete(message.getPayload());
+                    responseFuture.complete(message);
                 } else {
                     responseFuture.completeExceptionally(new UStatusException(code,"Communication failure"));
                 }
@@ -136,7 +136,7 @@ public class RpcExecutor implements RpcClient, UListener {
 
     private static class Empty extends RpcExecutor {
         @Override
-        public @NonNull CompletionStage<UPayload> invokeMethod(@NonNull UUri methodUri,
+        public @NonNull CompletionStage<UMessage> invokeMethod(@NonNull UUri methodUri,
                 @NonNull UPayload requestPayload, @NonNull CallOptions options) {
             return CompletableFuture.failedFuture(new UStatusException(UCode.UNIMPLEMENTED, "Dummy implementation"));
         }

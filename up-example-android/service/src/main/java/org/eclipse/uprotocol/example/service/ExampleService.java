@@ -52,7 +52,7 @@ import org.eclipse.uprotocol.example.v1.DoorCommand;
 import org.eclipse.uprotocol.example.v1.Example;
 import org.eclipse.uprotocol.rpc.URpcListener;
 import org.eclipse.uprotocol.transport.builder.UAttributesBuilder;
-import org.eclipse.uprotocol.uri.builder.UResourceBuilder;
+import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UPayload;

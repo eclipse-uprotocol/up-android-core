@@ -253,7 +253,7 @@ public class MessageHandlerTest extends TestBase {
     @Test
     public void testOnReceiveResponseMessage() {
         registerListeners();
-        CompletableFuture<UPayload> responseFuture =
+        final CompletableFuture<UMessage> responseFuture =
                 mMessageHandler.getRpcExecutor().invokeMethod(METHOD_URI, PAYLOAD, CallOptions.DEFAULT).toCompletableFuture();
         final ArgumentCaptor<UMessage> captor = ArgumentCaptor.forClass(UMessage.class);
         verify(mUBus, timeout(DELAY_LONG_MS).times(1)).send(captor.capture(), eq(mClientToken));

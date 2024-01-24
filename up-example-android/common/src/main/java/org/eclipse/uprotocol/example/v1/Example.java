@@ -31,7 +31,7 @@ import com.google.protobuf.DescriptorProtos.ServiceOptions;
 import org.eclipse.uprotocol.UprotocolOptions;
 import org.eclipse.uprotocol.rpc.CallOptions;
 import org.eclipse.uprotocol.rpc.RpcClient;
-import org.eclipse.uprotocol.uri.builder.UResourceBuilder;
+import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
 import org.eclipse.uprotocol.v1.UAuthority;
 import org.eclipse.uprotocol.v1.UEntity;
 import org.eclipse.uprotocol.v1.UStatus;
@@ -50,12 +50,12 @@ public class Example {
 
     private Example() {}
 
-    public static String getServiceName() {
+    private static String getServiceName() {
         final ServiceOptions options = ExampleProto.getDescriptor().findServiceByName("Example").getOptions();
         return (options != null) ? options.getExtension(UprotocolOptions.name) : "";
     }
 
-    public static int getServiceVersion() {
+    private static int getServiceVersion() {
         final ServiceOptions options = ExampleProto.getDescriptor().findServiceByName("Example").getOptions();
         return (options != null) ? options.getExtension(UprotocolOptions.versionMajor) : 0;
     }

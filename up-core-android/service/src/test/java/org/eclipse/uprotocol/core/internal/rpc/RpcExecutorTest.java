@@ -77,7 +77,7 @@ public class RpcExecutorTest extends TestBase {
     public void testEmpty() {
         final RpcExecutor empty = RpcExecutor.empty();
         assertNotNull(empty);
-        final CompletableFuture<UPayload> responseFuture =
+        final CompletableFuture<UMessage> responseFuture =
                 empty.invokeMethod(METHOD_URI, REQUEST_PAYLOAD, CallOptions.DEFAULT).toCompletableFuture();
         assertTrue(responseFuture.isCompletedExceptionally());
         assertFalse(empty.hasPendingRequests());
@@ -89,7 +89,7 @@ public class RpcExecutorTest extends TestBase {
     @Test
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     public void testInvokeMethod() throws Exception {
-        final CompletableFuture<UPayload> responseFuture =
+        final CompletableFuture<UMessage> responseFuture =
                 mRpcExecutor.invokeMethod(METHOD_URI, REQUEST_PAYLOAD, CallOptions.DEFAULT).toCompletableFuture();
         assertTrue(mRpcExecutor.hasPendingRequests());
         final ArgumentCaptor<UMessage> captor = ArgumentCaptor.forClass(UMessage.class);
@@ -97,7 +97,7 @@ public class RpcExecutorTest extends TestBase {
         assertFalse(responseFuture.isDone());
         final UMessage responseMessage = buildResponseMessage(captor.getValue(), RESPONSE_PAYLOAD, TTL);
         mRpcExecutor.onReceive(responseMessage);
-        assertEquals(RESPONSE_PAYLOAD, responseFuture.get(DELAY_MS, TimeUnit.MILLISECONDS));
+        assertEquals(responseMessage, responseFuture.get(DELAY_MS, TimeUnit.MILLISECONDS));
         assertTrue(responseFuture.isDone());
         assertFalse(mRpcExecutor.hasPendingRequests());
     }
@@ -105,7 +105,7 @@ public class RpcExecutorTest extends TestBase {
     @Test
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     public void testInvokeMethodCommunicationFailure() {
-        final CompletableFuture<UPayload> responseFuture =
+        final CompletableFuture<UMessage> responseFuture =
                 mRpcExecutor.invokeMethod(METHOD_URI, REQUEST_PAYLOAD, CallOptions.DEFAULT).toCompletableFuture();
         assertTrue(mRpcExecutor.hasPendingRequests());
         final ArgumentCaptor<UMessage> captor = ArgumentCaptor.forClass(UMessage.class);
@@ -123,7 +123,7 @@ public class RpcExecutorTest extends TestBase {
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     public void testInvokeMethodSendFailed() {
         when(mUBus.send(any(), any())).thenReturn(buildStatus(UCode.ABORTED));
-        final CompletableFuture<UPayload> responseFuture =
+        final CompletableFuture<UMessage> responseFuture =
                 mRpcExecutor.invokeMethod(METHOD_URI, REQUEST_PAYLOAD, CallOptions.DEFAULT).toCompletableFuture();
         verify(mUBus, timeout(DELAY_MS).times(1)).send(any(), any());
         final Exception exception = assertThrows(ExecutionException.class,

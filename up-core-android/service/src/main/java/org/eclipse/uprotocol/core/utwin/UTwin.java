@@ -51,7 +51,7 @@ import org.eclipse.uprotocol.core.internal.handler.MessageHandler;
 import org.eclipse.uprotocol.core.ubus.UBus;
 import org.eclipse.uprotocol.core.utwin.v1.GetLastMessagesResponse;
 import org.eclipse.uprotocol.core.utwin.v1.MessageResponse;
-import org.eclipse.uprotocol.uri.builder.UResourceBuilder;
+import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
 import org.eclipse.uprotocol.v1.UMessage;
