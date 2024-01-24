@@ -50,12 +50,12 @@ public class Example {
 
     private Example() {}
 
-    public static String getServiceName() {
+    private static String getServiceName() {
         final ServiceOptions options = ExampleProto.getDescriptor().findServiceByName("Example").getOptions();
         return (options != null) ? options.getExtension(UprotocolOptions.name) : "";
     }
 
-    public static int getServiceVersion() {
+    private static int getServiceVersion() {
         final ServiceOptions options = ExampleProto.getDescriptor().findServiceByName("Example").getOptions();
         return (options != null) ? options.getExtension(UprotocolOptions.versionMajor) : 0;
     }
