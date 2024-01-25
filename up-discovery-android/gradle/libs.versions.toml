@@ -1,0 +1,60 @@
+#
+# Copyright (c) 2024 General Motors GTO LLC
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# SPDX-FileType: SOURCE
+# SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+
+[versions]
+android = "8.2.1"
+android-material = "1.6.+"
+androidx-junit = "1.1.5"
+androidx-ktx = "1.6.0"
+junit = "4.13.2"
+kotlin = "1.9.21"
+kotlinx-coroutines = "1.7.1"
+ksp = "1.9.21-1.0.15"
+mockito = "4.6.1"
+robolectric = "4.7.3"
+room = "2.4.2"
+room-testing = "1.1.1"
+up-java = "1.5.7-SNAPSHOT"
+up-client-android-java = "1.5.+"
+
+[libraries]
+android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit"}
+androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-stdlib = { module =  "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-testing = { module = "android.arch.persistence.room:testing", version.ref = "room-testing" }
+up-java = { module = "org.eclipse.uprotocol:up-java", version.ref = "up-java" }
+up-client-android-java = { module = "org.eclipse.uprotocol:up-client-android-java", version.ref = "up-client-android-java" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android" }
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

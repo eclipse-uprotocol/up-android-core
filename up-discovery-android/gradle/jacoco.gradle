@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2024 General Motors GTO LLC
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * SPDX-FileType: SOURCE
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+apply plugin: 'jacoco'
+jacoco {
+    toolVersion = '0.8.8'
+}
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    group = 'Reporting'
+    description = 'Generate Jacoco coverage reports.'
+    reports {
+        xml.getRequired().set(true)
+        html.getRequired().set(true)
+    }
+    def buildDir = layout.buildDirectory.get()
+    executionData.from = ["${buildDir}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"]
+    sourceDirectories.from = ["${projectDir}/src/main/java"]
+    classDirectories.from = fileTree(
+            dir: "${buildDir}/intermediates/javac/debug/classes/",
+            excludes: ['**/*_Impl*.*']
+    )
+    doLast {
+        println "Unit-test coverage report generated at folder: ${buildDir}/reports/jacoco/jacocoTestReport/"
+    }
+}
