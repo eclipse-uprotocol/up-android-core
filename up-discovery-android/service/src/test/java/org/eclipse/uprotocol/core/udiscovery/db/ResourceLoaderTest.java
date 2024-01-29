@@ -32,7 +32,6 @@ import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.parseAuthorit
 import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.toLongUri;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import org.eclipse.uprotocol.core.udiscovery.v3.Node;
 import org.eclipse.uprotocol.v1.UAuthority;

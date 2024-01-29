@@ -114,7 +114,7 @@ public abstract class DatabaseLoader {
      * @brief remove the last node in the list (child node) from the node before it (parent node)
      * @param[in] nodePath - a list of nodes from the root to the leaf
      */
-    public static void DeleteNodeFromPath(List<Node.Builder> nodePath) {
+    public void DeleteNodeFromPath(List<Node.Builder> nodePath) {
         final int rootNodeSize = nodePath.size();
         checkArgument(rootNodeSize >= 2,
                 "[DeleteNodeFromPath] path must contain at least two nodes " + nodePath);
@@ -177,7 +177,7 @@ public abstract class DatabaseLoader {
      * @param[in] node - Parent node containing the node marked for deletion
      * @param[in] uri  - URI of the node to be deleted
      */
-    public static Node internalDeleteNode(Node node, String uri) {
+    public Node internalDeleteNode(Node node, String uri) {
         checkNotNull(node, "[internalDeleteNode] node is null");
         checkStringNotEmpty(uri, "[internalDeleteNode] uri is empty");
         final List<Node.Builder> nodePath = FindPathToNode(node.toBuilder(), uri);
@@ -194,7 +194,7 @@ public abstract class DatabaseLoader {
      * This implementation uses a stack to iterate over the tree to avoid recursion.
      * @param[] node - Node
      */
-    public static Node verifyNode(Node node) {
+    public Node verifyNode(Node node) {
         checkNotNull(node, "[verifyNode] node is null");
         final Node.Builder rootBld = node.toBuilder();
         final Deque<Node.Builder> stack = new ArrayDeque<>();
@@ -218,7 +218,7 @@ public abstract class DatabaseLoader {
      * @param[] node - node to be used as a base
      * @param[] depth - depth number to limit how far the node tree goes down to
      */
-    public static Node copy(Node node, int depth) {
+    public Node copy(Node node, int depth) {
         checkNotNull(node, "[copy] node is null");
         final Node.Builder rootBld = node.toBuilder();
         final Deque<Pair<Node.Builder, Integer>> stack = new ArrayDeque<>();
@@ -247,7 +247,7 @@ public abstract class DatabaseLoader {
      * @param[] node - node to insert into the hierarchy
      * @param[] bld  - builder for the parent, which will adopt the node
      */
-    public static Node.Builder commitNode(Node.Builder bld, Node node) {
+    public Node.Builder commitNode(Node.Builder bld, Node node) {
         checkNotNull(bld, "[commitNode] bld is null");
         checkNotNull(node, "[commitNode] node is null");
         final String nodeUri = node.getUri();
@@ -267,7 +267,7 @@ public abstract class DatabaseLoader {
      * @brief Confirm whether each node is at the right level based on uri
      * @param[] bld - Builder
      */
-    private static void verifyLineage(Node.Builder parent) {
+    private void verifyLineage(Node.Builder parent) {
         checkNotNull(parent, "[verifyLineage] parent is null");
         final String parentUri = parent.getUri();
         final Set<String> uriList = new HashSet<>();
@@ -290,7 +290,7 @@ public abstract class DatabaseLoader {
      * @param[] parent - parent node uri
      * @param[] child - child node uri
      */
-    private static boolean verifyParentChild(String parent, String child) {
+    private boolean verifyParentChild(String parent, String child) {
         try {
             final List<String> parentList = splitUri(parent);
             final List<String> childList = splitUri(child);
@@ -307,7 +307,7 @@ public abstract class DatabaseLoader {
         return false;
     }
 
-    private static List<String> splitUri(String uri) {
+    private List<String> splitUri(String uri) {
         final String[] strSplit = uri.split("/");
         final ArrayList<String> parts = new ArrayList<>(Arrays.asList(strSplit));
         parts.removeAll(List.of(""));
@@ -322,7 +322,7 @@ public abstract class DatabaseLoader {
      * @param[] node - the node to reformat
      * @param[] authority - LDS authority
      */
-    private static boolean verifyDomainDevice(String parent, String child) {
+    private boolean verifyDomainDevice(String parent, String child) {
         final LongUriSerializer lus = LongUriSerializer.instance();
         final UAuthority parentAuthority = lus.deserialize(parent).getAuthority();
         final UAuthority childAuthority = lus.deserialize(child).getAuthority();
@@ -331,7 +331,7 @@ public abstract class DatabaseLoader {
         return parentDomain.equals(childDomain);
     }
 
-    public static List<UUri> extractUriFromNodeOrBuilder(List<NodeOrBuilder> listOfNodeOrBuilder) {
+    public List<UUri> extractUriFromNodeOrBuilder(List<NodeOrBuilder> listOfNodeOrBuilder) {
         ArrayList<UUri> uriList = new ArrayList<>();
         for (NodeOrBuilder node : listOfNodeOrBuilder) {
             uriList.add(LongUriSerializer.instance().deserialize(node.getUri()));
@@ -339,7 +339,7 @@ public abstract class DatabaseLoader {
         return uriList;
     }
 
-    public static void insert(List<List<Node.Builder>> list, List<Node.Builder> branch) {
+    public void insert(List<List<Node.Builder>> list, List<Node.Builder> branch) {
         int idx = list.size();
         for (int i = 0; i < list.size(); i++) {
             if (branch.size() >= list.get(i).size()) {

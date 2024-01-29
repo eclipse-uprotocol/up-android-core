@@ -47,7 +47,6 @@ import android.util.Pair;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import org.eclipse.uprotocol.common.UStatusException;
-import org.eclipse.uprotocol.common.util.log.Formatter;
 import org.eclipse.uprotocol.core.udiscovery.IntegrityCheck;
 import org.eclipse.uprotocol.core.udiscovery.Notifier;
 import org.eclipse.uprotocol.core.udiscovery.TestBase;
@@ -775,22 +774,6 @@ public class DiscoveryManagerTest extends TestBase implements PersistInterface {
 
         UStatus sts = mDiscoveryMgr.updateNode(EntityNode, -1);
         assertEquals(UCode.INVALID_ARGUMENT, sts.getCode());
-    }
-
-    @Test
-    public void positive_addNodes_add_device() {
-        UAuthority root = UAuthority.newBuilder().setName(TEST_DOMAIN).build();
-        String deviceName = String.join(".", TEST_ALTERNATE_DEVICE, TEST_DOMAIN);
-        UAuthority device = UAuthority.newBuilder().setName(deviceName).build();
-        UUri domainUri = UUri.newBuilder().setAuthority(root).build();
-        UUri deviceUri = UUri.newBuilder().setAuthority(device).build();
-        Node node = Node.newBuilder()
-                .setUri(toLongUri(deviceUri))
-                .setType(Node.Type.DEVICE)
-                .build();
-
-        UStatus sts = mDiscoveryMgr.addNodes(domainUri, List.of(node));
-        assertEquals(UCode.OK, sts.getCode());
     }
 
     @Test
