@@ -113,7 +113,7 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserver() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.UPDATE, mUriPath);
-        //TODO capture and verify the notification event sent to uLink
+        //TODO capture and verify the notification event sent to upClient
         //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
     }
 
@@ -122,7 +122,7 @@ public class NotifierTest extends TestBase {
         setLogLevel(Log.DEBUG);
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.UPDATE, mUriPath);
-        //TODO capture and verify the notification event sent to uLink
+        //TODO capture and verify the notification event sent to upClient
         //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
     }
 
@@ -130,7 +130,7 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserver_operation_invalid() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.INVALID, mUriPath);
-        //TODO capture and verify the notification event sent to uLink
+        //TODO capture and verify the notification event sent to upClient
         //verifyNoInteractions(mUltifiLink);
     }
 
@@ -138,7 +138,7 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserver_operation_add() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.ADD, mUriPath);
-        //TODO capture and verify the notification event sent to uLink
+        //TODO capture and verify the notification event sent to upClient
         //verifyNoInteractions(mUltifiLink);
     }
 
@@ -152,7 +152,7 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserverAddNodes() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversAddNodes(mUriPath, mAddedUris);
-        //TODO capture and verify the notification event sent to uLink
+        //TODO capture and verify the notification event sent to upClient
         //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
     }
 
@@ -161,7 +161,7 @@ public class NotifierTest extends TestBase {
         setLogLevel(Log.DEBUG);
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversAddNodes(mUriPath, mAddedUris);
-        //TODO capture and verify the notification event sent to uLink
+        //TODO capture and verify the notification event sent to upClient
         //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
     }
 

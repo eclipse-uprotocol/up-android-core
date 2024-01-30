@@ -123,7 +123,7 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
         mUpClient = upClient;
         mResourceLoader = resourceLoader;
         mConnectivityManager = connectivityMgr;
-        ulinkInit().join();
+        upClientInit().join();
     }
 
     private static UUri buildCreateTopicUri() {
@@ -167,7 +167,7 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
         mRpcHandler = new RPCHandler(this, assetManager, discoveryManager, observerManager);
         mConnectivityManager = this.getSystemService(ConnectivityManager.class);
         registerNetworkCallback();
-        ulinkInit();
+        upClientInit();
         startForegroundService();
     }
 
@@ -190,11 +190,11 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
         startForeground(NOTIFICATION_ID, notification);
     }
 
-    private synchronized CompletableFuture<Void> ulinkInit() {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "ulinkInit")); }
+    private synchronized CompletableFuture<Void> upClientInit() {
+        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "upClientInit")); }
         return (CompletableFuture<Void>) mUpClient.connect()
                 .thenCompose(status -> {
-                    Log.i(TAG, join(Key.MESSAGE, "uLink.isConnected()", Key.CONNECTION, mUpClient.isConnected()));
+                    Log.i(TAG, join(Key.MESSAGE, "upClient.isConnected()", Key.CONNECTION, mUpClient.isConnected()));
                     return isOk(status) ?
                             CompletableFuture.completedFuture(status) :
                             CompletableFuture.failedFuture(new UStatusException(status));
@@ -210,7 +210,7 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void registerAllMethods() {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "registerAllMethods, uLink Connect", Key.STATUS, mUpClient.isConnected())); }
+        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "registerAllMethods, upClient Connect", Key.STATUS, mUpClient.isConnected())); }
         CompletableFuture.allOf(
                         registerMethod(METHOD_LOOKUP_URI, this::executeLookupUri),
                         registerMethod(METHOD_FIND_NODES, this::executeFindNodes),
@@ -392,7 +392,7 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
                     return null;
                 })
                 .thenCompose(it -> mUpClient.disconnect())
-                .whenComplete((status, exception) -> logStatus(TAG, "uLink disconnect", status));
+                .whenComplete((status, exception) -> logStatus(TAG, "upClient disconnect", status));
         mRpcHandler.shutdown();
         super.onDestroy();
     }
@@ -437,9 +437,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     public void onLifecycleChanged(@NonNull UPClient upClient, boolean ready) {
         if (DEBUG) { Log.d(TAG, join(Key.EVENT, "onLifecycleChanged")); }
         if (ready) {
-            Log.i(TAG, join(Key.EVENT, "uLink is connected"));
+            Log.i(TAG, join(Key.EVENT, "upClient is connected"));
         } else {
-            Log.i(TAG, join(Key.EVENT, "uLink is disconnected"));
+            Log.i(TAG, join(Key.EVENT, "upClient is disconnected"));
         }
     }
 }

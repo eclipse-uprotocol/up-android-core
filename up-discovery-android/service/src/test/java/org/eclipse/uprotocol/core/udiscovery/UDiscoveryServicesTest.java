@@ -270,7 +270,7 @@ public class UDiscoveryServicesTest extends TestBase {
 
 
     @Test
-    public void negative_ulink_connect_exception() {
+    public void negative_upClient_connect_exception() {
         setLogLevel(Log.VERBOSE);
         CompletableFuture<UStatus> connectFut = CompletableFuture.completedFuture(mFailedStatus);
         UPClient mockLink = mock(UPClient.class);
@@ -280,13 +280,13 @@ public class UDiscoveryServicesTest extends TestBase {
             new UDiscoveryService(mContext, mRpcHandler, mockLink, mResourceLoader, mConnectivityMgr);
         } catch (CompletionException e) {
             bException = true;
-            Log.e(TAG, join(Key.MESSAGE, "negative_ulink_connect_exception", Key.FAILURE, toStatus(e)));
+            Log.e(TAG, join(Key.MESSAGE, "negative_upClient_connect_exception", Key.FAILURE, toStatus(e)));
         }
         assertTrue(bException);
     }
 
     @Test
-    public void negative_ulink_isConnected_false() {
+    public void negative_upClient_isConnected_false() {
         UPClient mockLink = mock(UPClient.class);
         //USubscription.Stub mockStub = mock(USubscription.Stub.class);
         CompletableFuture<UStatus> connectFut = CompletableFuture.completedFuture(STATUS_OK);
@@ -339,7 +339,7 @@ public class UDiscoveryServicesTest extends TestBase {
     }
 
     @Test
-    public void negative_uLink_registerMethod_exception() throws InterruptedException {
+    public void negative_upClient_registerMethod_exception() throws InterruptedException {
         setLogLevel(Log.VERBOSE);
         CompletableFuture<UStatus> connectFut = CompletableFuture.completedFuture(STATUS_OK);
         when(mUpClient.connect()).thenReturn(connectFut);
@@ -355,7 +355,7 @@ public class UDiscoveryServicesTest extends TestBase {
     }
 
     @Test
-    public void negative_uLink_unRegisterMethod_exception() throws InterruptedException {
+    public void negative_upClient_unRegisterMethod_exception() throws InterruptedException {
         setLogLevel(Log.DEBUG);
         //when(mDatabaseLoader.getAuthority()).thenReturn(TEST_AUTHORITY);
         when(mUpClient.unregisterRpcListener(any(UUri.class),
