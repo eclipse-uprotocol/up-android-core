@@ -839,4 +839,21 @@ public class DiscoveryManagerTest extends TestBase implements PersistInterface {
         UStatus sts = mDiscoveryMgr.addNodes(parentUri, List.of(Node.getDefaultInstance()));
         assertEquals(UCode.NOT_FOUND, sts.getCode());
     }
+
+    @Test
+    public void commitNodeValidation() {
+
+        Node.Builder childBld = Node.newBuilder();
+        childBld.setType(Node.Type.DEVICE);
+
+        Node.Builder bld = Node.newBuilder();
+        UAuthority domain = UAuthority.newBuilder().setName(TEST_DOMAIN).build();
+        UUri rootUri = UUri.newBuilder().setAuthority(domain).build();
+        bld.setUri(toLongUri(rootUri));
+        bld.setType(Node.Type.DOMAIN);
+        bld.addNodes(childBld);
+        Node node = jsonToNode(REGISTRY_JSON);
+        Node.Builder builder = mDiscoveryMgr.commitNode(bld, node);
+        assertEquals(node.getUri(), builder.getUri());
+    }
 }

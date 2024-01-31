@@ -24,10 +24,12 @@
 
 package org.eclipse.uprotocol.core.udiscovery;
 
+import static android.util.Log.INFO;
 import static android.util.Log.VERBOSE;
 import static org.eclipse.uprotocol.common.util.UStatusUtils.toStatus;
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
+import static org.eclipse.uprotocol.core.udiscovery.common.Constants.LDS_DB_FILENAME;
 import static org.eclipse.uprotocol.core.udiscovery.db.JsonNodeTest.REGISTRY_JSON;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -109,6 +111,17 @@ public class ResourceLoaderTest extends TestBase {
     }
 
     @Test
+    public void testLoglevelinitializeLDS() {
+        setLogLevel(INFO);
+        when(mAssetManager.readFileFromInternalStorage(appContext, Constants.LDS_DB_FILENAME)).thenReturn(REGISTRY_JSON);
+        DiscoveryManager discoveryManager = Mockito.spy(new DiscoveryManager(mNotifier));
+        when(discoveryManager.load(REGISTRY_JSON)).thenReturn(true);
+        mResourceLoader = Mockito.spy(new ResourceLoader(appContext, mAssetManager, discoveryManager));
+        assertEquals(ResourceLoader.InitLDSCode.SUCCESS, mResourceLoader.initializeLDS());
+    }
+
+
+    @Test
     public void testinitializeLDS_Recovery() {
         when(mAssetManager.readFileFromInternalStorage(appContext, Constants.LDS_DB_FILENAME)).thenReturn(REGISTRY_JSON);
         DiscoveryManager discoveryManager = Mockito.spy(new DiscoveryManager(mNotifier));
@@ -123,5 +136,28 @@ public class ResourceLoaderTest extends TestBase {
         UStatusException uStatusException = assertThrows(UStatusException.class, () -> mResourceLoader.initializeLDS());
         assertEquals(UCode.FAILED_PRECONDITION, uStatusException.getCode());
         verify(mAssetManager, times(1)).readFileFromInternalStorage(appContext, Constants.LDS_DB_FILENAME);
+    }
+
+    @Test
+    public void testSaveDBFaliure2() {
+        setLogLevel(INFO);
+        when(mAssetManager.readFileFromInternalStorage(appContext, Constants.LDS_DB_FILENAME)).thenReturn(REGISTRY_JSON);
+        when(mAssetManager.writeFileToInternalStorage(appContext, Constants.LDS_DB_FILENAME, REGISTRY_JSON)).thenReturn(false);
+        DiscoveryManager discoveryManager = Mockito.spy(new DiscoveryManager(mNotifier));
+        when(discoveryManager.load(REGISTRY_JSON)).thenReturn(true);
+        mResourceLoader = Mockito.spy(new ResourceLoader(appContext, mAssetManager, discoveryManager, ResourceLoader.InitLDSCode.RECOVERY));
+        assertEquals(ResourceLoader.InitLDSCode.FAILURE, mResourceLoader.initializeLDS());
+    }
+
+    @Test
+    public void testSaveDBFaliure3() {
+        setLogLevel(INFO);
+        when(mAssetManager.readFileFromInternalStorage(appContext, Constants.LDS_DB_FILENAME)).thenReturn(REGISTRY_JSON);
+        when(mAssetManager.writeFileToInternalStorage(appContext, Constants.LDS_DB_FILENAME, REGISTRY_JSON)).thenReturn(true);
+        DiscoveryManager discoveryManager = Mockito.spy(new DiscoveryManager(mNotifier));
+        when(discoveryManager.export()).thenReturn(REGISTRY_JSON);
+        when(discoveryManager.load(REGISTRY_JSON)).thenReturn(true);
+        mResourceLoader = Mockito.spy(new ResourceLoader(appContext, mAssetManager, discoveryManager, ResourceLoader.InitLDSCode.RECOVERY));
+        assertEquals(ResourceLoader.InitLDSCode.RECOVERY, mResourceLoader.initializeLDS());
     }
 }
