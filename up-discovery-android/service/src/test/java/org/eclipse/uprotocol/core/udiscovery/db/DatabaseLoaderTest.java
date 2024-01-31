@@ -47,7 +47,7 @@ import org.robolectric.shadows.ShadowLog;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-public class ResourceLoaderTest {
+public class DatabaseLoaderTest {
     private String nameShort = "a";
     private String nameMedium = "ab";
     private String nameLong = "abc";
