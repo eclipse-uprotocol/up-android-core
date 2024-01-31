@@ -46,19 +46,16 @@ public class AssetManager {
     private static final String TAG = tag(SERVICE.getName());
     private final BufferedReader mBufferReader;
     private final FileWriter mWriter;
-    private final File mFile;
 
     public AssetManager() {
         mBufferReader = null;
         mWriter = null;
-        mFile = null;
     }
 
     @VisibleForTesting
-    AssetManager(BufferedReader reader, FileWriter writer, File file) {
+    AssetManager(BufferedReader reader, FileWriter writer) {
         mBufferReader = reader;
         mWriter = writer;
-        mFile = file;
     }
 
     public String readFileFromInternalStorage(Context context, String fileName) {

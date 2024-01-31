@@ -98,7 +98,7 @@ public class AssetManagerTest extends TestBase {
     public void test_readFileFromInternalStorage_IOException() {
         String data = null;
         when(mockContext.getFilesDir()).thenReturn(new File("/tmp"));
-        mAssetManager = new AssetManager(mBufferedReader, mWriter, mFile);
+        mAssetManager = new AssetManager(mBufferedReader, mWriter);
         try {
             doThrow(new IOException()).when(mBufferedReader).readLine();
             data = mAssetManager.readFileFromInternalStorage(mockContext, LDS_DB_FILENAME);
@@ -112,7 +112,7 @@ public class AssetManagerTest extends TestBase {
     public void test_writeFileToInternalStorage_IOException() {
         boolean actual = false;
         when(mockContext.getFilesDir()).thenReturn(new File("/tmp"));
-        mAssetManager = new AssetManager(mBufferedReader, mWriter, mFile);
+        mAssetManager = new AssetManager(mBufferedReader, mWriter);
         try {
             doThrow(new IOException()).when(mWriter).close();
             actual = mAssetManager.writeFileToInternalStorage(mockContext, LDS_DB_FILENAME,

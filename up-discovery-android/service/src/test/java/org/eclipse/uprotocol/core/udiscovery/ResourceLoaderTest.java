@@ -29,7 +29,6 @@ import static android.util.Log.VERBOSE;
 import static org.eclipse.uprotocol.common.util.UStatusUtils.toStatus;
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
-import static org.eclipse.uprotocol.core.udiscovery.common.Constants.LDS_DB_FILENAME;
 import static org.eclipse.uprotocol.core.udiscovery.db.JsonNodeTest.REGISTRY_JSON;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;

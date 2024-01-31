@@ -56,7 +56,6 @@ public class ResourceLoader {
         mContext = context;
         mAssetManager = au;
         mDiscoveryMgr = mgr;
-        mCode = null;
     }
 
     @VisibleForTesting
@@ -68,7 +67,7 @@ public class ResourceLoader {
     }
 
     public InitLDSCode initializeLDS() throws UStatusException {
-        InitLDSCode code = (null != mCode) ? mCode : InitLDSCode.FAILURE;
+        InitLDSCode code = InitLDSCode.FAILURE;
         load(LDS_DB_FILENAME);
         code = (null != mCode) ? mCode : InitLDSCode.SUCCESS;
         if (code == InitLDSCode.RECOVERY) {
