@@ -1,0 +1,35 @@
+#
+# Copyright (c) 2024 General Motors GTO LLC.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License v. 2.0 which is available at
+# http://www.eclipse.org/legal/epl-2.0.
+#
+# SPDX-FileType: DOCUMENTATION
+# SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+# SPDX-License-Identifier: Apache-2.0
+[versions]
+android = "8.2.+"
+android-material = "1.11.0"
+androidx-annotation = "1.7.1"
+javax-annotation = "1.3.2"
+google-protobuf = "0.9.4"
+google-protoc = "3.19.2"
+grpc = "1.45.1"
+up-client-android-java = "1.5.+"
+up-java = "1.5.7"
+
+[libraries]
+android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
+androidx-annotation = { module = 'androidx.annotation:annotation', version.ref = "androidx-annotation" }
+javax-annotation = { module = 'javax.annotation:javax.annotation-api', version.ref = "javax-annotation" }
+google-protoc = { module = 'com.google.protobuf:protoc', version.ref = "google-protoc" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc"}
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc"}
+up-client-android-java = { module = "org.eclipse.uprotocol:up-client-android-java", version.ref = "up-client-android-java" }
+up-java = { module = "org.eclipse.uprotocol:up-java", version.ref = "up-java" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android" }
+android-library = { id = "com.android.library", version.ref = "android" }
+google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf" }

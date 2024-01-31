@@ -1,0 +1,86 @@
+= Testing Environment Setup
+:toc:
+:toclevels: 2
+:sectnums:
+:source-highlighter: coderay
+
+== Overview
+Below you may find instructions on how to setup testing environment for applications using the https://developer.android.com/studio/run/emulator[Android Emulator].
+
+== Creating an Android Virtual Device
+To learn more about Android Virtual Devices (AVD) please refer to https://developer.android.com/studio/run/managing-avds[Create and manage virtual devices]
+
+* Navigate to Tools in Android Studio, then select Device Manager.
+* Use the "+" button to create a Virtual Device.
+* Pick a device profile, such as "Pixel C" from the "Tablet" category, and proceed by clicking "Next".
+* In the "Select a system image" window, go to the "x86 images" tab.
+* Click on the small download button next to "Tiramisu" with Target as "Android 13.0" (ensure the selected system image doesn't have "Google APIs") and wait for the download to complete. Once downloaded, click "Next" and then "Finish."
+
+NOTE: Applications included in this project should be installed as privileged ones, requiring them to be signed with the same platform keys used in the selected system image. We cannot use system images with "Google APIs", because those keys are not available in AOSP repository.
+
+== Starting an Android Emulator
+You may launch an emulator that uses your AVD from "Device Manager" by clicking "Start" button next to it or from the console with commands below.
+
+To get the name of your AVD:
+[,bash]
+----
+emulator --list-avds
+----
+
+Launch the emulator with read-only system image:
+[,bash]
+----
+emulator @YourAVDName
+----
+
+Or with writable system image:
+[,bash]
+----
+emulator @YourAVDName --writable-system
+----
+
+NOTE: The emulator binary is located in _"<AndroidSDK>/emulator/"_ folder.
+
+== Installing a Privileged Application
+Launch the emulator with writable system image as described in the previous section.
+
+Enable remounting in writable mode (required only once):
+[,bash]
+----
+adb root
+adb disable-verity
+adb reboot
+----
+
+Push the application to the system image:
+[,bash]
+----
+adb root
+adb remount
+adb shell mkdir /system/priv-app/<AppName>
+adb push ./<module>/build/outputs/apk/release/<AppName>-release.apk /system/priv-app/<AppName>/<AppName>.apk
+----
+
+Whitelist privileged permissions used by the application:
+[,bash]
+----
+adb push privapp-permissions-<AppPackage>.xml /etc/permissions/
+----
+
+Reboot to apply changes:
+[,bash]
+----
+adb reboot
+----
+
+In the majority of cases, you can apply subsequent updates to the application without remounting:
+[,bash]
+----
+adb install ./<module>/build/outputs/apk/release/<AppName>-release.apk
+----
+
+or
+[,bash]
+----
+gradlew installRelease
+----

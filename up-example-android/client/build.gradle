@@ -1,0 +1,62 @@
+/*
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: DOCUMENTATION
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+apply from: '../gradle/config.gradle'
+
+android {
+    namespace 'org.eclipse.uprotocol.example.client'
+    compileSdk config.sdkVersion
+
+    defaultConfig {
+        minSdk config.minSdkVersion
+        targetSdk config.sdkVersion
+        versionCode 1
+        versionName '1.0'
+    }
+
+    signingConfigs {
+        platform {
+            storeFile file('certs/platform.keystore')
+            storePassword 'android'
+            keyAlias 'platform'
+            keyPassword 'android'
+        }
+    }
+
+    base.archivesName = 'UClientExample'
+    buildTypes {
+        release {
+            signingConfig signingConfigs.platform
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.platform
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation libs.android.material
+    implementation libs.up.client.android.java
+    implementation libs.up.java
+    implementation project(path: ':common')
+}

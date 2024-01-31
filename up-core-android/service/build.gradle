@@ -1,0 +1,119 @@
+/*
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: DOCUMENTATION
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+plugins {
+    alias libs.plugins.android.application
+    alias libs.plugins.devtools.ksp
+    alias libs.plugins.kotlin.android
+}
+
+apply from: '../gradle/config.gradle'
+apply from: '../gradle/jacoco.gradle'
+
+android {
+    namespace config.namespace
+    compileSdk config.sdkVersion
+    compileSdkVersion config.sdkVersion
+    buildToolsVersion config.toolsVersion
+    buildFeatures.buildConfig true
+
+    defaultConfig {
+        applicationId config.namespace
+        minSdkVersion config.minSdkVersion
+        targetSdkVersion config.sdkVersion
+        minSdk config.minSdkVersion
+        targetSdk config.sdkVersion
+        versionCode config.versionCode
+        versionName config.versionName
+        buildConfigField 'String', 'VERSION_NAME', /"${config.versionName}"/
+        buildConfigField 'String', 'VERSION_CODE', /"${config.versionCode}"/
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        ksp {
+            arg('room.schemaLocation', "$projectDir/src/main/assets/")
+        }
+    }
+
+    signingConfigs {
+        platform {
+            storeFile file('certs/platform.keystore')
+            storePassword 'android'
+            keyAlias 'platform'
+            keyPassword 'android'
+        }
+    }
+
+    base.archivesName = config.artifact
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.platform
+            debuggable true
+            minifyEnabled false
+            testCoverageEnabled true
+        }
+        release {
+            signingConfig signingConfigs.platform
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = []
+        }
+        test.assets.srcDirs += files("$projectDir/src/test/".toString())
+    }
+
+    testOptions {
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            testLogging {
+                exceptionFormat 'full'
+                events 'passed', 'skipped', 'failed'
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
+                jacoco {
+                    includeNoLocationClasses = true
+                    excludes = ['*']
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation libs.android.material
+    implementation libs.androidx.ktx
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines
+    ksp libs.room.compiler
+    implementation libs.room.ktx
+    implementation libs.up.client.android.java
+    implementation libs.up.java
+
+    testImplementation libs.androidx.junit
+    testImplementation libs.junit
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.inline
+    testImplementation libs.robolectric
+    testImplementation libs.room.testing
+}
