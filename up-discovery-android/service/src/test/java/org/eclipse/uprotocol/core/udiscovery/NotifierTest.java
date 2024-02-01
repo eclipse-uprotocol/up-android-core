@@ -24,7 +24,6 @@
 package org.eclipse.uprotocol.core.udiscovery;
 
 import static org.eclipse.uprotocol.common.util.UStatusUtils.buildStatus;
-import static org.eclipse.uprotocol.core.udiscovery.common.Constants.TOPIC_NODE_NOTIFICATION;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -36,14 +35,11 @@ import static org.mockito.Mockito.when;
 import android.util.Log;
 
 import org.eclipse.uprotocol.UPClient;
-import org.eclipse.uprotocol.common.util.UStatusUtils;
 import org.eclipse.uprotocol.core.udiscovery.v3.Notification;
 import org.eclipse.uprotocol.v1.UAuthority;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
-import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UResource;
-import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
 import org.junit.Before;
 import org.junit.Rule;
@@ -141,7 +137,6 @@ public class NotifierTest extends TestBase {
         setLogLevel(Log.DEBUG);
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.UPDATE, mUriPath);
-        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
         verify(mUpClient, atLeastOnce()).send(any());
     }
 
@@ -149,7 +144,6 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserver_operation_invalid() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.INVALID, mUriPath);
-        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
         verify(mUpClient, never()).send(any());
     }
 
@@ -157,7 +151,6 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserver_operation_add() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.ADD, mUriPath);
-        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
         verify(mUpClient, never()).send(any());
     }
 
