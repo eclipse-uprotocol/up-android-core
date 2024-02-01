@@ -24,6 +24,15 @@
 
 package org.eclipse.uprotocol.core.udiscovery.interfaces;
 
+/**
+ * The PersistInterface is an interface that provides a contract for persisting data.
+ * Classes implementing this interface must provide an implementation for the persist method.
+ */
 public interface PersistInterface {
+
+    /**
+     * The persist method is used to persist data.
+     * @param data The data to be persisted.
+     */
     void persist(String data);
 }

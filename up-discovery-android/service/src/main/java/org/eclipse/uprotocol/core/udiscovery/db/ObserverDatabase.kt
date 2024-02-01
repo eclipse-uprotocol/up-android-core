@@ -34,6 +34,16 @@ import org.eclipse.uprotocol.common.util.log.Key
 
 import org.eclipse.uprotocol.core.udiscovery.UDiscoveryService.TAG
 
+/**
+ * This is an abstract class that extends RoomDatabase. Room is a persistence library, part of the Android Jetpack.
+ * Room provides an abstraction layer over SQLite to allow fluent database access while harnessing the full power of SQLite.
+ *
+ * Classes annotated with @Database should extend this class and list all entities associated with that database.
+ * The class should also be an abstract class and include an abstract method with no parameters and returns the class that is annotated with @Dao.
+ *
+ * In this case, ObserverDatabase provides a handle to the underlying SQLite database and serves as the main access point for the underlying connection.
+ * It includes a method to access ObserverDao which is used to manage database operations related to the Observer entity.
+ */
 
 @Database(
     entities = [Observer::class],

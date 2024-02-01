@@ -29,6 +29,16 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
+/**
+ * `ObserverDao` is an interface that defines the operations that can be performed on the Observer database table.
+ * It uses Room persistence library to provide an abstraction layer over SQLite.
+ *
+ * The following operations are defined:
+ * - `addObserver(Observer: Observer): Long`: This function is used to add an Observer to the database. If an Observer with the same primary key already exists, it is replaced.
+ * - `removeObserver(nodeUri: String, observer: String): Int`: This function is used to remove an Observer from the database based on the provided `nodeUri` and `observer`.
+ * - `getNodeUrisList(): List<String>`: This function is used to retrieve a list of all node URIs in the Observer table.
+ * - `getObserverList(nodeUri: String): List<String>`: This function is used to retrieve a list of all Observers for a specific node URI.
+ */
 @Dao
 interface ObserverDao {
 

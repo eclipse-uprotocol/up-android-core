@@ -26,6 +26,12 @@ package org.eclipse.uprotocol.core.udiscovery.db
 
 import androidx.room.Entity
 
+/**
+ * The Observer class represents an observer in the database.
+ *
+ * @property nodeUri The URI of the node that the observer is observing.
+ * @property observer The identifier of the observer.
+ */
 @Entity(tableName = Observer.TABLE_NAME,
     primaryKeys = ["nodeUri","observer"])
 class Observer(

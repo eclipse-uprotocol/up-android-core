@@ -77,6 +77,22 @@ import org.eclipse.uprotocol.v1.UUriBatch;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The RPCHandler class implements the PersistInterface.
+ * This class is responsible for handling RPC (Remote Procedure Call) operations.
+ * It provides methods to process various types of requests such as LookupUri, FindNodes, FindNodeProperties, etc.
+ * It also provides methods to manage nodes and properties in the LDS (Local Discovery Service).
+ * <p>
+ * The class contains several instance variables:
+ * - mContext: An instance of android.content.Context. It represents the context in which the RPCHandler is running.
+ * - mDiscoveryManager: An instance of DiscoveryManager. It is used to manage the discovery of nodes.
+ * - mAssetManager: An instance of AssetManager. It is used to manage assets.
+ * - mObserverManager: An instance of ObserverManager. It is used to manage observers.
+ * <p>
+ * The class also provides a shutdown method to stop the DiscoveryManager and a persist method to write data to internal storage.
+ * <p>
+ * This class is part of the udiscovery package of the uprotocol core module.
+ */
 @SuppressWarnings({"java:S1200", "java:S3008"})
 public class RPCHandler implements PersistInterface {
 

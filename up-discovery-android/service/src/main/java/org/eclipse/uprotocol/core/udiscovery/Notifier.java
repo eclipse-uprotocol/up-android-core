@@ -49,7 +49,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * The Notifier class is responsible for notifying observers of changes to nodes.
+ */
 public class Notifier {
     public static final String PARENT_URI = "parentUri";
     public static final String OBSERVER_URI = "observerUri";
@@ -95,6 +97,12 @@ public class Notifier {
         });
     }
 
+    /**
+     * Notify observers when nodes are added.
+     *
+     * @param nodePath The list of node URIs from the root to the last node.
+     * @param addedNodes The list of added node URIs.
+     */
     public void notifyObserversAddNodes(List<UUri> nodePath, List<UUri> addedNodes) {
         if (nodePath.isEmpty()) {
             Log.w(TAG, join(Key.MESSAGE, "notifyObserversAddNodes nodePath is Empty"));
@@ -115,6 +123,12 @@ public class Notifier {
         }
     }
 
+    /**
+     * Get the list of observers for a given node path.
+     *
+     * @param nodePath The list of node URIs from the root to the last node.
+     * @return The list of observer URIs.
+     */
     private List<UUri> getListOfObservers(List<UUri> nodePath) {
         ArrayList<UUri> observerList = new ArrayList<>();
         for (UUri nodePathUri : nodePath) {
@@ -127,6 +141,14 @@ public class Notifier {
         return observerList;
     }
 
+    /**
+     * Build notifications for a given node, parent, operation, and observer.
+     *
+     * @param nodeUri The URI of the node.
+     * @param parentUri The URI of the parent node.
+     * @param operation The operation performed on the node.
+     * @param observerUri The URI of the observer.
+     */
     private void buildNotifications(UUri nodeUri, UUri parentUri, Operation operation,
                                     UUri observerUri) {
         final String child = toLongUri(nodeUri);

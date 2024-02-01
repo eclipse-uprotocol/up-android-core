@@ -23,8 +23,26 @@
  */
 
 package org.eclipse.uprotocol.core.udiscovery.interfaces;
-
+/**
+ * The ChecksumInterface is an interface that provides methods for generating and verifying hashes.
+ * It is used to ensure data integrity by creating a unique hash for a given input and verifying it.
+ */
 public interface ChecksumInterface {
+
+    /**
+     * Generates a hash for the given input.
+     *
+     * @param input The input string for which the hash is to be generated.
+     * @return The generated hash as a string.
+     */
     String generateHash(String input);
+
+    /**
+     * Verifies the hash for the given data.
+     *
+     * @param data The data for which the hash was generated.
+     * @param hash The hash that needs to be verified.
+     * @return true if the hash matches the data, false otherwise.
+     */
     boolean verifyHash(String data, String hash);
 }

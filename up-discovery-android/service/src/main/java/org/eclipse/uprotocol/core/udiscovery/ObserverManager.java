@@ -50,7 +50,6 @@ import org.eclipse.uprotocol.core.udiscovery.db.ObserverDao;
 import org.eclipse.uprotocol.core.udiscovery.db.ObserverDatabase;
 import org.eclipse.uprotocol.core.udiscovery.db.ObserverDatabaseKt;
 import org.eclipse.uprotocol.uri.serializer.LongUriSerializer;
-import org.eclipse.uprotocol.uri.validator.UriValidator;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
@@ -61,6 +60,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The ObserverManager class is responsible for managing observers in the system.
+ * It provides methods to register and unregister observers, add observers to a map and database,
+ * remove observers from a map and database, and fetch observers for a particular node.
+ * <p>
+ * The class maintains a ConcurrentHashMap of observers, where each observer is associated with a UUri node.
+ * It also maintains a reference to an ObserverDatabase for persisting observer data.
+ * <p>
+ * The class provides two constructors: one that takes a Context object and initializes the ObserverDatabase,
+ * and another that takes an ObserverDatabase object directly. This second constructor is annotated with
+ * @VisibleForTesting, indicating that it is intended for use in testing scenarios.
+ * <p>
+ * The class also provides a series of private helper methods for interacting with the map and database of observers.
+ * These methods include loadMapDataFromDb(), addObserverToMap(), addObserverToDb(), removeObserverFromMap(), and
+ * removeObserverFromDb(). These methods are used internally by the public methods to perform their operations.
+ * <p>
+ * The class also provides public methods for registering and unregistering observers. These methods take a list of
+ * UUri nodes and a single UUri observer. They return a UStatus object indicating the result of the operation.
+ * <p>
+ * Finally, the class provides methods for fetching observers. The getObservers() method takes a UUri node and returns
+ * a Set of UUri observers associated with that node. The getObserverMap() method returns the entire map of observers.
+ */
 public class ObserverManager {
     protected static final String TAG = tag(SERVICE.getName());
     protected static boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -74,12 +95,21 @@ public class ObserverManager {
         mDatabase = ObserverDatabaseKt.createDbExtension(context);
     }
 
+    /*
+     * @VisibleForTesting, indicating that it is intended for use in testing scenarios.
+     * */
     @VisibleForTesting
     ObserverManager(ObserverDatabase database) {
         mDatabase = database;
 
     }
 
+    /**
+     * This method is used to load data from the database into the ConcurrentHashMap mObservers.
+     * It retrieves a list of node URIs from the database and for each node URI, it fetches the corresponding observer URIs.
+     * Each node URI and its corresponding observer URIs are then deserialized and added to the ConcurrentHashMap mObservers.
+     * This method is typically called when the ConcurrentHashMap mObservers is empty, i.e., when the ObserverManager is first initialized or when all observers have been unregistered.
+     */
     private void loadMapDataFromDb() {
         List<String> nodeUrisList = observerDao().getNodeUrisList();
         for (String nodeUri : nodeUrisList) {

@@ -41,6 +41,22 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * The AssetManager class is responsible for managing assets in the application.
+ * It provides methods to read from and write to internal storage.
+ * <p>
+ * The class contains two private fields:
+ * - mBufferReader: a BufferedReader used for reading files
+ * - mWriter: a FileWriter used for writing files
+ * <p>
+ * The class provides two constructors:
+ * - A default constructor that initializes mBufferReader and mWriter to null
+ * - A constructor for testing that accepts a BufferedReader and FileWriter
+ * <p>
+ * The class provides two public methods:
+ * - readFileFromInternalStorage: reads a file from internal storage and returns its content as a string
+ * - writeFileToInternalStorage: writes a string to a file in internal storage and returns a boolean indicating success or failure
+ */
 public class AssetManager {
 
     private static final String TAG = tag(SERVICE.getName());
@@ -58,6 +74,12 @@ public class AssetManager {
         mWriter = writer;
     }
 
+    /**
+     * Reads a file from internal storage and returns its content as a string
+     * @param context Context of the application
+     * @param fileName Name of the file to read
+     * @return Content of the file as a string
+     */
     public String readFileFromInternalStorage(Context context, String fileName) {
         try {
             final String filepath = context.getFilesDir() + "/" + fileName;
@@ -80,6 +102,13 @@ public class AssetManager {
         return "";
     }
 
+    /**
+     * Writes a string to a file in internal storage and returns a boolean indicating success or failure
+     * @param context Context of the application
+     * @param sFileName Name of the file to write to
+     * @param sBody Content to write to the file
+     * @return Boolean indicating success (true) or failure (false)
+     */
     public boolean writeFileToInternalStorage(Context context, String sFileName, String sBody) {
         try {
             final File fd = new File(context.getFilesDir(), sFileName);

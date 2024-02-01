@@ -83,6 +83,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
+/**
+ * UDiscoveryService is a class that extends the Android Service class and implements the UPClient.ServiceLifecycleListener interface.
+ * This service is responsible for handling various methods related to the UProtocol discovery process.
+ * It manages the lifecycle of the UPClient and handles RPC requests.
+ * <p>
+ * The service is also responsible for managing the database initialization, registering and unregistering methods,
+ * and handling request events. It also manages the lifecycle of the UPClient and handles the connection status.
+ * <p>
+ * The service is started in the foreground to ensure it keeps running even when the app is not in the foreground.
+ * <p>
+ * This class is part of the UProtocol core discovery package.
+ */
 @SuppressWarnings({"java:S1200", "java:S3008", "java:S1134"})
 public class UDiscoveryService extends Service implements UPClient.ServiceLifecycleListener {
     public static final String TAG = tag(SERVICE.getName());

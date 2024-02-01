@@ -91,6 +91,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * DiscoveryManager is a class that manages the discovery of nodes in a network.
+ * It extends the DatabaseLoader class and provides methods for initializing, updating, adding, deleting, and finding nodes.
+ * It also provides methods for updating properties of nodes, exporting the entire discovery database as a JSON string, and loading the discovery database from a persisted JSON store.
+ * The class uses a ScheduledExecutorService to schedule tasks for deleting nodes at specific points in time.
+ * It also uses a Notifier to notify observers of changes in the discovery database.
+ * The class is thread-safe as all its public methods are synchronized.
+ */
 public class DiscoveryManager extends DatabaseLoader {
     private static final String TAG = tag(SERVICE.getName());
     private static final String KEY = "key";

@@ -30,7 +30,16 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents a table of expiry data.
+ * It extends ArrayList and contains ExpiryData objects.
+ */
 public class ExpiryTable extends ArrayList<ExpiryData> {
+
+    /**
+     * This method clears the ExpiryTable.
+     * It cancels all the futures in the ExpiryData objects before clearing the table.
+     */
     public void clear() {
         for (ExpiryData ed : this) {
             if (ed.mFuture != null) {
@@ -40,6 +49,12 @@ public class ExpiryTable extends ArrayList<ExpiryData> {
         super.clear();
     }
 
+    /**
+     * This method removes an ExpiryData object from the table based on the provided URI.
+     * It also cancels the future of the ExpiryData object before removing it.
+     * @param uri The URI of the ExpiryData object to be removed.
+     * @return The removed ExpiryData object. If no object with the provided URI is found, it returns null.
+     */
     public ExpiryData remove(String uri) {
         for (var i = 0; i < this.size(); i++) {
             ExpiryData ed = this.get(i);
@@ -53,6 +68,11 @@ public class ExpiryTable extends ArrayList<ExpiryData> {
         return null;
     }
 
+    /**
+     * This method exports the ExpiryTable to a JsonObject.
+     * Each ExpiryData object is represented as a property in the JsonObject, with the URI as the key and the expiry date time as the value.
+     * @return A JsonObject representing the ExpiryTable.
+     */
     public JsonObject export() {
         var ota = new JsonObject();
         for (ExpiryData ed : this) {

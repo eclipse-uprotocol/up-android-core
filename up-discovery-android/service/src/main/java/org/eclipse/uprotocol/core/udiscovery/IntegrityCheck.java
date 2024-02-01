@@ -39,6 +39,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+/**
+ * The IntegrityCheck class implements the ChecksumInterface.
+ * It provides methods to generate and verify hashes.
+ * The hash algorithm used is SHA-256 by default, but can be changed by providing a different algorithm when
+ * creating an instance of the class.
+ *
+ * @see ChecksumInterface
+ */
 public class IntegrityCheck implements ChecksumInterface {
     protected static final String TAG = tag(SERVICE.getName());
 

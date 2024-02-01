@@ -57,6 +57,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * DatabaseLoader is an abstract class that provides methods for manipulating a tree of Node objects.
+ * It includes methods for finding, deleting, verifying, and committing nodes, among other operations.
+ * This class is used in the context of a database where the nodes represent data entries.
+ */
 public abstract class DatabaseLoader {
     private static final String TAG = tag(SERVICE.getName());
 
@@ -331,6 +336,11 @@ public abstract class DatabaseLoader {
         return parentDomain.equals(childDomain);
     }
 
+    /**
+     * Extracts URIs from a list of NodeOrBuilder objects.
+     * @param listOfNodeOrBuilder The list of NodeOrBuilder objects.
+     * @return A list of URIs.
+     */
     public List<UUri> extractUriFromNodeOrBuilder(List<NodeOrBuilder> listOfNodeOrBuilder) {
         ArrayList<UUri> uriList = new ArrayList<>();
         for (NodeOrBuilder node : listOfNodeOrBuilder) {
@@ -339,6 +349,11 @@ public abstract class DatabaseLoader {
         return uriList;
     }
 
+    /**
+     * Inserts a branch into a list at the appropriate position based on the size of the branch.
+     * @param list The list to insert into.
+     * @param branch The branch to insert.
+     */
     public void insert(List<List<Node.Builder>> list, List<Node.Builder> branch) {
         int idx = list.size();
         for (int i = 0; i < list.size(); i++) {
