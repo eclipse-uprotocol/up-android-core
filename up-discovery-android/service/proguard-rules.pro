@@ -18,6 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 # SPDX-FileType: SOURCE
-# SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+# SPDX-FileCopyrightText: 2024 General Motors GTO LLC
 # SPDX-License-Identifier: Apache-2.0
 #

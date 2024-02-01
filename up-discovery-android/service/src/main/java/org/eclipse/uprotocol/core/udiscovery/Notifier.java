@@ -18,7 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -26,8 +26,10 @@ package org.eclipse.uprotocol.core.udiscovery;
 
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
+import static org.eclipse.uprotocol.core.udiscovery.common.Constants.TOPIC_NODE_NOTIFICATION;
 import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.toLongUri;
 import static org.eclipse.uprotocol.core.udiscovery.v3.UDiscovery.SERVICE;
+import static org.eclipse.uprotocol.transport.builder.UPayloadBuilder.packToAny;
 
 import android.util.Log;
 
@@ -37,6 +39,11 @@ import org.eclipse.uprotocol.UPClient;
 import org.eclipse.uprotocol.common.util.log.Key;
 import org.eclipse.uprotocol.core.udiscovery.v3.Notification;
 import org.eclipse.uprotocol.core.udiscovery.v3.Notification.Operation;
+import org.eclipse.uprotocol.transport.builder.UPayloadBuilder;
+import org.eclipse.uprotocol.v1.UAttributes;
+import org.eclipse.uprotocol.v1.UAuthority;
+import org.eclipse.uprotocol.v1.UMessage;
+import org.eclipse.uprotocol.v1.UPayload;
 import org.eclipse.uprotocol.v1.UUri;
 
 import java.util.ArrayList;
@@ -142,22 +149,14 @@ public class Notifier {
      * @param notification - Notification containing the details of the node and operation
      */
     private void sendNotification(@NonNull UUri observer, @NonNull Notification notification) {
-        Log.d(TAG, join(OBSERVER_URI, observer.toString(), NOTIFICATION,
-                notification));
-        // TODO
-//        final Any payload = Any.pack(notification);
-//        final String sink = toLongUri(observer);
-//        final CloudEvent notificationEvent =
-//                CloudEventFactory.notification(TOPIC_NODE_NOTIFICATION, sink, payload,
-//                        UCloudEventAttributes.empty());
-//        if (DEBUG) {
-//            Log.d(LOG_TAG, Key.EVENT, "sendNotification", Key.MESSAGE, stringify(notificationEvent));
-//        }
-//        final Status status = mUltifiLink.publish(notificationEvent);
-//        if (isOk(status)) {
-//            Log.debugStatus(LOG_TAG, "sendNotification", status);
-//        } else {
-//            Log.warningStatus(LOG_TAG,"sendNotification", status, Key.MESSAGE, "Failed to send notification");
-//        }
+        Log.i(TAG, join(OBSERVER_URI, observer.toString(), NOTIFICATION, notification));
+        UAttributes attributes = UAttributes.newBuilder().setSink(observer).build();
+        UPayload payload = packToAny(notification);
+        UMessage message = UMessage.newBuilder()
+                .setPayload(payload)
+                .setAttributes(attributes)
+                .setSource(TOPIC_NODE_NOTIFICATION)
+                .build();
+        mUpClient.send(message);
     }
 }

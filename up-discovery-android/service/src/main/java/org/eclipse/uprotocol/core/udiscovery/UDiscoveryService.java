@@ -18,7 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -32,6 +32,7 @@ import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.quote;
 import static org.eclipse.uprotocol.common.util.log.Formatter.stringify;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
+import static org.eclipse.uprotocol.core.udiscovery.common.Constants.TOPIC_NODE_NOTIFICATION;
 import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.logStatus;
 import static org.eclipse.uprotocol.core.udiscovery.v3.UDiscovery.METHOD_ADD_NODES;
 import static org.eclipse.uprotocol.core.udiscovery.v3.UDiscovery.METHOD_DELETE_NODES;
@@ -50,9 +51,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -65,7 +63,6 @@ import org.eclipse.uprotocol.UPClient;
 import org.eclipse.uprotocol.common.UStatusException;
 import org.eclipse.uprotocol.common.util.log.Key;
 import org.eclipse.uprotocol.core.udiscovery.db.DiscoveryManager;
-import org.eclipse.uprotocol.core.udiscovery.interfaces.NetworkStatusInterface;
 import org.eclipse.uprotocol.core.udiscovery.v3.FindNodePropertiesResponse;
 import org.eclipse.uprotocol.core.udiscovery.v3.FindNodesResponse;
 import org.eclipse.uprotocol.core.udiscovery.v3.LookupUriResponse;
@@ -88,9 +85,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 @SuppressWarnings({"java:S1200", "java:S3008", "java:S1134"})
-public class UDiscoveryService extends Service implements NetworkStatusInterface, UPClient.ServiceLifecycleListener {
+public class UDiscoveryService extends Service implements UPClient.ServiceLifecycleListener {
     public static final String TAG = tag(SERVICE.getName());
-    public static final UUri TOPIC_NODE_NOTIFICATION = buildCreateTopicUri();
     private static final CharSequence NOTIFICATION_CHANNEL_NAME = TAG;
     private static final int NOTIFICATION_ID = 1;
     private static final String DATABASE_NOT_INITIALIZED = "Database not initialized";
@@ -100,15 +96,12 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     private final ScheduledExecutorService mExecutor = Executors.newScheduledThreadPool(1);
     private final Map<UUri, BiConsumer<UMessage, CompletableFuture<UPayload>>> mMethodHandlers = new HashMap<>();
     private final URpcListener mRequestEventListener = this::handleRequestEvent;
-    private final NetworkCallback mNetworkCallback = new NetworkCallback(this);
     private final Binder mBinder = new Binder() {
     };
     private final AtomicBoolean mDatabaseInitialized = new AtomicBoolean(false);
     private RPCHandler mRpcHandler;
     private ResourceLoader mResourceLoader;
     private UPClient mUpClient;
-    private ConnectivityManager mConnectivityManager;
-    private CompletableFuture<Boolean> mNetworkAvailableFuture = new CompletableFuture<>();
 
     // This constructor is for service initialization
     // without this constructor service won't start.
@@ -118,37 +111,19 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
 
     @VisibleForTesting
     UDiscoveryService(Context context, RPCHandler rpcHandler, UPClient upClient,
-                      ResourceLoader resourceLoader, ConnectivityManager connectivityMgr) {
+                      ResourceLoader resourceLoader) {
         mRpcHandler = rpcHandler;
         mUpClient = upClient;
         mResourceLoader = resourceLoader;
-        mConnectivityManager = connectivityMgr;
         upClientInit().join();
-    }
-
-    private static UUri buildCreateTopicUri() {
-        final UUri.Builder builder = UUri.newBuilder()
-                .setEntity(SERVICE)
-                .setResource(UResource.newBuilder().setName("nodes").setMessage("Notification").build());
-        return builder.build();
-    }
-
-    private void registerNetworkCallback() {
-        mConnectivityManager.requestNetwork(new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build(), mNetworkCallback);
-    }
-
-    private void unregisterNetworkCallback() {
-        mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
     }
 
     @Nullable
     @Override
     public IBinder onBind(@NonNull Intent intent) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "onBind")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "onBind"));
+        }
         return mBinder;
     }
 
@@ -156,7 +131,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     @Override
     public void onCreate() {
         super.onCreate();
-        if(DEBUG) {Log.d(TAG, join(Key.EVENT, "onCreate - Starting uDiscovery"));}
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "onCreate - Starting uDiscovery"));
+        }
 
         mUpClient = UPClient.create(getApplicationContext(), SERVICE, mExecutor, this);
         ObserverManager observerManager = new ObserverManager(this);
@@ -165,14 +142,14 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
         AssetManager assetManager = new AssetManager();
         mResourceLoader = new ResourceLoader(this, assetManager, discoveryManager);
         mRpcHandler = new RPCHandler(this, assetManager, discoveryManager, observerManager);
-        mConnectivityManager = this.getSystemService(ConnectivityManager.class);
-        registerNetworkCallback();
         upClientInit();
         startForegroundService();
     }
 
     private void startForegroundService() {
-        if (DEBUG)  { Log.d(TAG, join(Key.EVENT, "startForegroundService")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "startForegroundService"));
+        }
         final NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                 NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_NONE);
@@ -191,7 +168,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private synchronized CompletableFuture<Void> upClientInit() {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "upClientInit")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "upClientInit"));
+        }
         return (CompletableFuture<Void>) mUpClient.connect()
                 .thenCompose(status -> {
                     Log.i(TAG, join(Key.MESSAGE, "upClient.isConnected()", Key.CONNECTION, mUpClient.isConnected()));
@@ -210,7 +189,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void registerAllMethods() {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "registerAllMethods, upClient Connect", Key.STATUS, mUpClient.isConnected())); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "registerAllMethods, upClient Connect", Key.STATUS, mUpClient.isConnected()));
+        }
         CompletableFuture.allOf(
                         registerMethod(METHOD_LOOKUP_URI, this::executeLookupUri),
                         registerMethod(METHOD_FIND_NODES, this::executeFindNodes),
@@ -228,10 +209,14 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeLookupUri(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> responseFuture) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeLookupUri")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeLookupUri"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
-            if (DEBUG) { Log.d(TAG, join(Key.EVENT, "LookupUri", Key.REQUEST, stringify(requestEvent))); }
+            if (DEBUG) {
+                Log.d(TAG, join(Key.EVENT, "LookupUri", Key.REQUEST, stringify(requestEvent)));
+            }
             responseFuture.complete(mRpcHandler.processLookupUriFromLDS(requestEvent));
         } catch (Exception e) {
             UStatus status = logStatus(TAG, "executeLookupUri", toStatus(e));
@@ -241,10 +226,14 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeFindNodes(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> responseFuture) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeFindNodes")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeFindNodes"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
-            if (DEBUG) { Log.d(TAG, join(Key.EVENT, "FindNodes", Key.REQUEST, stringify(requestEvent))); }
+            if (DEBUG) {
+                Log.d(TAG, join(Key.EVENT, "FindNodes", Key.REQUEST, stringify(requestEvent)));
+            }
             responseFuture.complete(mRpcHandler.processFindNodesFromLDS(requestEvent));
         } catch (Exception e) {
             UStatus status = logStatus(TAG, "executeFindNodes", toStatus(e));
@@ -254,11 +243,15 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeUpdateNode(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeUpdateNode")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeUpdateNode"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
-            if (DEBUG) { Log.d(TAG, join(Key.EVENT, "received for UpdateNode",
-                    Key.REQUEST, stringify(requestEvent))); }
+            if (DEBUG) {
+                Log.d(TAG, join(Key.EVENT, "received for UpdateNode",
+                        Key.REQUEST, stringify(requestEvent)));
+            }
             future.complete(mRpcHandler.processLDSUpdateNode(requestEvent));
         } catch (Exception e) {
             UStatus status = logStatus(TAG, "executeUpdateNode", toStatus(e));
@@ -267,7 +260,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeFindNodesProperty(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeFindNodesProperty")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeFindNodesProperty"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
             future.complete(mRpcHandler.processFindNodeProperties(requestEvent));
@@ -279,10 +274,14 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeAddNodes(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeAddNodes")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeAddNodes"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
-            if (DEBUG) {Log.d(TAG, join(Key.EVENT, "received for AddNodes", Key.REQUEST, stringify(requestEvent)));}
+            if (DEBUG) {
+                Log.d(TAG, join(Key.EVENT, "received for AddNodes", Key.REQUEST, stringify(requestEvent)));
+            }
             future.complete(mRpcHandler.processAddNodesLDS(requestEvent));
         } catch (Exception e) {
             UStatus status = logStatus(TAG, "executeAddNodes", toStatus(e));
@@ -291,7 +290,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeDeleteNodes(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeDeleteNodes")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeDeleteNodes"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
             Log.i(TAG, join(Key.EVENT, "received for DeleteNodes", Key.REQUEST, stringify(requestEvent)));
@@ -303,7 +304,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void executeUpdateProperty(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeUpdateProperty")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeUpdateProperty"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
             future.complete(mRpcHandler.processLDSUpdateProperty(requestEvent));
@@ -315,7 +318,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
 
     private void executeRegisterNotification(@NonNull UMessage requestEvent,
                                              @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeRegisterNotification")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeRegisterNotification"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
             Log.i(TAG, join(Key.EVENT, "received for Register Notification", Key.REQUEST, stringify(requestEvent)));
@@ -329,7 +334,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
 
     private void executeUnregisterNotification(@NonNull UMessage requestEvent,
                                                @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "executeUnregisterNotification")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "executeUnregisterNotification"));
+        }
         try {
             checkArgument(mDatabaseInitialized.get(), UCode.FAILED_PRECONDITION, DATABASE_NOT_INITIALIZED);
             Log.i(TAG, join(Key.EVENT, "received for Unregister Notification", Key.REQUEST, stringify(requestEvent)));
@@ -343,7 +350,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
 
     private CompletableFuture<UStatus> registerMethod(@NonNull String methodName,
                                                       @NonNull BiConsumer<UMessage, CompletableFuture<UPayload>> handler) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "registerMethod")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "registerMethod"));
+        }
         final UUri methodUri = UUri.newBuilder().setEntity(SERVICE).
                 setResource(UResourceBuilder.forRpcRequest(methodName)).build();
         return CompletableFuture.supplyAsync(() -> {
@@ -359,7 +368,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private CompletableFuture<UStatus> unregisterMethod(@NonNull String methodName) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "unregisterMethod")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "unregisterMethod"));
+        }
         final UUri methodUri = UUri.newBuilder().setEntity(SERVICE).
                 setResource(UResourceBuilder.forRpcRequest(methodName)).build();
         return CompletableFuture.supplyAsync(() -> {
@@ -375,8 +386,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
 
     @Override
     public void onDestroy() {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "onDestroy")); }
-        unregisterNetworkCallback();
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "onDestroy"));
+        }
         CompletableFuture.allOf(
                         unregisterMethod(METHOD_LOOKUP_URI),
                         unregisterMethod(METHOD_FIND_NODES),
@@ -398,7 +410,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
     }
 
     private void handleRequestEvent(@NonNull UMessage requestEvent, @NonNull CompletableFuture<UPayload> future) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "handleRequestEvent")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "handleRequestEvent"));
+        }
         final UUri uUri = requestEvent.getAttributes().getSink();
         final boolean isSinkAvailable = requestEvent.getAttributes().hasSink();
         if (isSinkAvailable) {
@@ -412,20 +426,10 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
         }
     }
 
-    @Override
-    public void setNetworkStatus(boolean status) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "setNetworkStatus")); }
-        synchronized (mNetworkCallback) {
-            if (status) {
-                mNetworkAvailableFuture.complete(true);
-            } else {
-                mNetworkAvailableFuture = new CompletableFuture<>();
-            }
-        }
-    }
-
     private void createNotificationTopic() {
-        if (DEBUG) { Log.d(TAG, join(Key.REQUEST, "CreateTopic", Key.URI, quote(TOPIC_NODE_NOTIFICATION.toString()))); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.REQUEST, "CreateTopic", Key.URI, quote(TOPIC_NODE_NOTIFICATION.toString())));
+        }
         mUpClient.invokeMethod(TOPIC_NODE_NOTIFICATION, UPayload.getDefaultInstance(), CallOptions.DEFAULT)
                 .exceptionally(e -> {
                     Log.e(TAG, join("registerAllMethods", toStatus(e)));
@@ -435,7 +439,9 @@ public class UDiscoveryService extends Service implements NetworkStatusInterface
 
     @Override
     public void onLifecycleChanged(@NonNull UPClient upClient, boolean ready) {
-        if (DEBUG) { Log.d(TAG, join(Key.EVENT, "onLifecycleChanged")); }
+        if (DEBUG) {
+            Log.d(TAG, join(Key.EVENT, "onLifecycleChanged"));
+        }
         if (ready) {
             Log.i(TAG, join(Key.EVENT, "upClient is connected"));
         } else {

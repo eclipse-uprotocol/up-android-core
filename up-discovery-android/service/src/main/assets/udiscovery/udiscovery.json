@@ -1,11 +1,11 @@
 {
-  "uri": "core.udiscovery",
+  "uri": "/core.udiscovery",
   "nodes": [
     {
-      "uri": "core.udiscovery/3",
+      "uri": "/core.udiscovery/3",
       "nodes": [
         {
-          "uri": "core.udiscovery/3/rpc.LookupUri",
+          "uri": "/core.udiscovery/3/rpc.LookupUri",
           "properties": {
             "id": {
               "uInteger": 1
@@ -14,7 +14,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.UpdateNode",
+          "uri": "/core.udiscovery/3/rpc.UpdateNode",
           "properties": {
             "id": {
               "uInteger": 2
@@ -26,7 +26,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.FindNodes",
+          "uri": "/core.udiscovery/3/rpc.FindNodes",
           "properties": {
             "id": {
               "uInteger": 3
@@ -35,7 +35,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.FindNodeProperties",
+          "uri": "/core.udiscovery/3/rpc.FindNodeProperties",
           "properties": {
             "id": {
               "uInteger": 4
@@ -44,7 +44,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.DeleteNodes",
+          "uri": "/core.udiscovery/3/rpc.DeleteNodes",
           "properties": {
             "id": {
               "uInteger": 5
@@ -56,7 +56,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.AddNodes",
+          "uri": "/core.udiscovery/3/rpc.AddNodes",
           "properties": {
             "id": {
               "uInteger": 6
@@ -68,7 +68,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.UpdateProperty",
+          "uri": "/core.udiscovery/3/rpc.UpdateProperty",
           "properties": {
             "id": {
               "uInteger": 7
@@ -80,7 +80,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.RegisterForNotifications",
+          "uri": "/core.udiscovery/3/rpc.RegisterForNotifications",
           "properties": {
             "id": {
               "uInteger": 8
@@ -89,7 +89,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/rpc.UnregisterForNotifications",
+          "uri": "/core.udiscovery/3/rpc.UnregisterForNotifications",
           "properties": {
             "id": {
               "uInteger": 9
@@ -98,7 +98,7 @@
           "type": "METHOD"
         },
         {
-          "uri": "core.udiscovery/3/nodes#Notification",
+          "uri": "/core.udiscovery/3/nodes#Notification",
           "properties": {
             "id": {
               "uInteger": 0

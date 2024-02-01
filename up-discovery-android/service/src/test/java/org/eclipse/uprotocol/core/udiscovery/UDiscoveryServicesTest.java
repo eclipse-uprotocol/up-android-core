@@ -18,7 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -29,7 +29,7 @@ import static org.eclipse.uprotocol.common.util.UStatusUtils.buildStatus;
 import static org.eclipse.uprotocol.common.util.UStatusUtils.toStatus;
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
-import static org.eclipse.uprotocol.core.udiscovery.UDiscoveryService.TOPIC_NODE_NOTIFICATION;
+import static org.eclipse.uprotocol.core.udiscovery.common.Constants.TOPIC_NODE_NOTIFICATION;
 import static org.eclipse.uprotocol.core.udiscovery.common.Constants.UNEXPECTED_PAYLOAD;
 import static org.eclipse.uprotocol.core.udiscovery.db.JsonNodeTest.REGISTRY_JSON;
 import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.hasCharAt;
@@ -57,21 +57,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.protobuf.Any;
-import com.google.protobuf.ByteString;
 
 import org.eclipse.uprotocol.UPClient;
 import org.eclipse.uprotocol.common.UStatusException;
 import org.eclipse.uprotocol.common.util.log.Key;
-import org.eclipse.uprotocol.core.udiscovery.interfaces.NetworkStatusInterface;
 import org.eclipse.uprotocol.core.udiscovery.v3.AddNodesRequest;
 import org.eclipse.uprotocol.core.udiscovery.v3.DeleteNodesRequest;
 import org.eclipse.uprotocol.core.udiscovery.v3.FindNodePropertiesRequest;
@@ -121,9 +117,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         "java:S5845"})
 @RunWith(RobolectricTestRunner.class)
 public class UDiscoveryServicesTest extends TestBase {
-    private static final String PROPERTY_SDV_ENABLED = "persist.sys.gm.sdv_enable";
-    private static final ByteString mCorruptPayload = ByteString.copyFromUtf8("corrupt payload");
-    private static final String TOKEN = "token";
     private static final String TAG = tag(SERVICE.getName());
     private static UStatus mFailedStatus;
     private static UStatus mNotFoundStatus;
@@ -139,7 +132,6 @@ public class UDiscoveryServicesTest extends TestBase {
     private static LookupUriResponse mLookupUriResponse;
     private static FindNodesResponse mFindNodesResponse;
     private static FindNodePropertiesResponse mFindNodePropertiesResponse;
-    private final AccountManager mAccountManager = mock(AccountManager.class);
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
     private UDiscoveryService mService;
@@ -148,8 +140,6 @@ public class UDiscoveryServicesTest extends TestBase {
     private UPClient mUpClient;
     @Mock
     private RPCHandler mRpcHandler;
-    @Mock
-    private ConnectivityManager mConnectivityMgr;
     @Mock
     private ResourceLoader mResourceLoader;
     private Context mContext;
@@ -200,7 +190,7 @@ public class UDiscoveryServicesTest extends TestBase {
                 build();
 
         PropertyValue propString = PropertyValue.newBuilder().setUString("hello world").build();
-        PropertyValue propInteger = PropertyValue.newBuilder().setUInteger(2023).build();
+        PropertyValue propInteger = PropertyValue.newBuilder().setUInteger(2024).build();
         PropertyValue propBoolean = PropertyValue.newBuilder().setUBoolean(true).build();
 
         FindNodePropertiesResponse.Builder fnpRespBld = FindNodePropertiesResponse.newBuilder();
@@ -248,9 +238,7 @@ public class UDiscoveryServicesTest extends TestBase {
                 thenReturn(responseCreateTopicException);
 
         mContext = InstrumentationRegistry.getInstrumentation().getContext();
-        mService = new UDiscoveryService(mContext, mRpcHandler, mUpClient, mResourceLoader,
-                mConnectivityMgr);
-        mService.setNetworkStatus(true);
+        mService = new UDiscoveryService(mContext, mRpcHandler, mUpClient, mResourceLoader);
 
         // sleep to ensure registerAllMethods completes in the async thread before the verify
         // registerEventListener call below
@@ -277,7 +265,7 @@ public class UDiscoveryServicesTest extends TestBase {
         when(mockLink.connect()).thenReturn(connectFut);
         boolean bException = false;
         try {
-            new UDiscoveryService(mContext, mRpcHandler, mockLink, mResourceLoader, mConnectivityMgr);
+            new UDiscoveryService(mContext, mRpcHandler, mockLink, mResourceLoader);
         } catch (CompletionException e) {
             bException = true;
             Log.e(TAG, join(Key.MESSAGE, "negative_upClient_connect_exception", Key.FAILURE, toStatus(e)));
@@ -294,7 +282,7 @@ public class UDiscoveryServicesTest extends TestBase {
         when(mockLink.connect()).thenReturn(connectFut);
         when(mockLink.isConnected()).thenReturn(false);
 
-        new UDiscoveryService(mContext, mRpcHandler, mockLink, mResourceLoader, mConnectivityMgr);
+        new UDiscoveryService(mContext, mRpcHandler, mockLink, mResourceLoader);
 
         verify(mockLink, never()).registerRpcListener(any(UUri.class),
                 any(URpcListener.class));
@@ -306,7 +294,7 @@ public class UDiscoveryServicesTest extends TestBase {
         setLogLevel(Log.DEBUG);
         ResourceLoader mockLoader = mock(ResourceLoader.class);
         when(mockLoader.initializeLDS()).thenReturn(ResourceLoader.InitLDSCode.FAILURE);
-        new UDiscoveryService(mContext, mRpcHandler, mUpClient, mockLoader, mConnectivityMgr);
+        new UDiscoveryService(mContext, mRpcHandler, mUpClient, mockLoader);
 
         // sleep to ensure registerAllMethods completes in the async thread before the verify
         // registerEventListener call below
@@ -347,7 +335,7 @@ public class UDiscoveryServicesTest extends TestBase {
         when(mUpClient.registerRpcListener(any(UUri.class),
                 any(URpcListener.class))).thenReturn(mFailedStatus);
 
-        new UDiscoveryService(mContext, mRpcHandler, mUpClient, mResourceLoader, mConnectivityMgr);
+        new UDiscoveryService(mContext, mRpcHandler, mUpClient, mResourceLoader);
         // wait for register async tasks to complete
         Thread.sleep(100);
         verify(mUpClient, atLeastOnce()).registerRpcListener(any(UUri.class),
@@ -722,36 +710,6 @@ public class UDiscoveryServicesTest extends TestBase {
     }
 
     @Test
-    public void positive_networkCallbacks() {
-        setLogLevel(Log.DEBUG);
-        mService.setNetworkStatus(false);
-        AtomicBoolean flag = new AtomicBoolean(false);
-        NetworkStatusInterface consumer = flag::set;
-        NetworkCallback cb = new NetworkCallback(consumer);
-
-        cb.onAvailable(null);
-        assertTrue(flag.get());
-        cb.onLost(null);
-        assertFalse(flag.get());
-        cb.onCapabilitiesChanged(null, null);
-    }
-
-    @Test
-    public void positive_networkCallbacks_verbose() {
-        setLogLevel(Log.VERBOSE);
-        mService.setNetworkStatus(false);
-        AtomicBoolean flag = new AtomicBoolean(false);
-        NetworkStatusInterface consumer = flag::set;
-        NetworkCallback cb = new NetworkCallback(consumer);
-
-        cb.onAvailable(null);
-        assertTrue(flag.get());
-        cb.onLost(null);
-        assertFalse(flag.get());
-        cb.onCapabilitiesChanged(null, null);
-    }
-
-    @Test
     public void positive_serviceListener() {
         setLogLevel(Log.INFO);
         mService.onLifecycleChanged(mUpClient, true);
@@ -773,7 +731,7 @@ public class UDiscoveryServicesTest extends TestBase {
 
     @Test
     public void test_UtilsChatAt() {
-        assertFalse(hasCharAt("", 1,  '4'));
-        assertFalse(hasCharAt("", -1,  '4'));
+        assertFalse(hasCharAt("", 1, '4'));
+        assertFalse(hasCharAt("", -1, '4'));
     }
 }

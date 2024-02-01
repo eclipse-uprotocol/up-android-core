@@ -18,7 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -34,6 +34,7 @@ import static org.eclipse.uprotocol.core.udiscovery.RPCHandler.NODEURI;
 import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.logStatus;
 import static org.eclipse.uprotocol.core.udiscovery.internal.Utils.toLongUri;
 import static org.eclipse.uprotocol.core.udiscovery.v3.UDiscovery.SERVICE;
+import static org.eclipse.uprotocol.uri.validator.UriValidator.validate;
 
 import android.content.Context;
 import android.util.Log;
@@ -49,6 +50,7 @@ import org.eclipse.uprotocol.core.udiscovery.db.ObserverDao;
 import org.eclipse.uprotocol.core.udiscovery.db.ObserverDatabase;
 import org.eclipse.uprotocol.core.udiscovery.db.ObserverDatabaseKt;
 import org.eclipse.uprotocol.uri.serializer.LongUriSerializer;
+import org.eclipse.uprotocol.uri.validator.UriValidator;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
@@ -103,13 +105,11 @@ public class ObserverManager {
         if (mObservers.isEmpty()) {
             loadMapDataFromDb();
         }
-        // TODO
-        //checkUriValid(observerUri);
+        validate(observerUri);
         long addedCount = nodeUris.stream().filter(nodeUri -> addObserver(nodeUri, observerUri)).count();
         if (addedCount == nodeUris.size()) {
             return buildStatus(UCode.OK);
         } else {
-            //TODO: check with Cloud team to retry request if partial success case
             return buildStatus(UCode.INTERNAL, "Operation didn't complete for all Nodes");
         }
     }
@@ -189,8 +189,7 @@ public class ObserverManager {
         if (mObservers.isEmpty()) {
             loadMapDataFromDb();
         }
-        // TODO
-        //checkUriValid(observerUri);
+        validate(observerUri);
         int removedCount = 0;
         for (UUri nodeUri : nodeUris) {
             if (removeObserver(nodeUri, observerUri)) {
@@ -200,7 +199,6 @@ public class ObserverManager {
         if (removedCount == nodeUris.size()) {
             return buildStatus(UCode.OK);
         } else {
-            //TODO: check with Cloud team to retry request if partial success case
             return buildStatus(UCode.INTERNAL, "Operation didn't complete for all Nodes");
         }
     }

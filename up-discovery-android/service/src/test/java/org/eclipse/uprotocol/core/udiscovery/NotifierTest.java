@@ -18,25 +18,40 @@
  * specific language governing permissions and limitations
  * under the License.
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.eclipse.uprotocol.core.udiscovery;
 
+import static org.eclipse.uprotocol.common.util.UStatusUtils.buildStatus;
+import static org.eclipse.uprotocol.core.udiscovery.common.Constants.TOPIC_NODE_NOTIFICATION;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import android.util.Log;
 
 import org.eclipse.uprotocol.UPClient;
+import org.eclipse.uprotocol.common.util.UStatusUtils;
 import org.eclipse.uprotocol.core.udiscovery.v3.Notification;
 import org.eclipse.uprotocol.v1.UAuthority;
+import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
+import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UResource;
+import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowLog;
 
@@ -49,6 +64,10 @@ import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
 public class NotifierTest extends TestBase {
+
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
+    @Mock
     private UPClient mUpClient;
     private ObserverManager mObserverManager;
     private Notifier mNotifier;
@@ -113,8 +132,8 @@ public class NotifierTest extends TestBase {
     public void testNotifyObserver() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.UPDATE, mUriPath);
-        //TODO capture and verify the notification event sent to upClient
-        //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
+        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
+        verify(mUpClient, atLeastOnce()).send(any());
     }
 
     @Test
@@ -122,38 +141,38 @@ public class NotifierTest extends TestBase {
         setLogLevel(Log.DEBUG);
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.UPDATE, mUriPath);
-        //TODO capture and verify the notification event sent to upClient
-        //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
+        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
+        verify(mUpClient, atLeastOnce()).send(any());
     }
 
     @Test
     public void testNotifyObserver_operation_invalid() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.INVALID, mUriPath);
-        //TODO capture and verify the notification event sent to upClient
-        //verifyNoInteractions(mUltifiLink);
+        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
+        verify(mUpClient, never()).send(any());
     }
 
     @Test
     public void testNotifyObserver_operation_add() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversWithParentUri(Notification.Operation.ADD, mUriPath);
-        //TODO capture and verify the notification event sent to upClient
-        //verifyNoInteractions(mUltifiLink);
+        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
+        verify(mUpClient, never()).send(any());
     }
 
     @Test
     public void testNotifyNodePath_empty() {
         mNotifier.notifyObserversWithParentUri(Notification.Operation.UPDATE, List.of());
-        //verifyNoInteractions(mUltifiLink);
+        verifyNoInteractions(mUpClient);
     }
 
     @Test
     public void testNotifyObserverAddNodes() {
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversAddNodes(mUriPath, mAddedUris);
-        //TODO capture and verify the notification event sent to upClient
-        //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
+        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
+        verify(mUpClient, atLeastOnce()).send(any());
     }
 
     @Test
@@ -161,13 +180,13 @@ public class NotifierTest extends TestBase {
         setLogLevel(Log.DEBUG);
         when(mObserverManager.getObserverMap()).thenReturn(mObserverMap);
         mNotifier.notifyObserversAddNodes(mUriPath, mAddedUris);
-        //TODO capture and verify the notification event sent to upClient
-        //when(mUltifiLink.publish(any())).thenReturn(buildStatus(Code.OK));
+        when(mUpClient.send(any())).thenReturn(buildStatus(UCode.OK, "OK"));
+        verify(mUpClient, atLeastOnce()).send(any());
     }
 
     @Test
     public void testNotifyObserverAddNodes_empty() {
         mNotifier.notifyObserversAddNodes(List.of(), List.of());
-        //verifyNoInteractions(mUltifiLink);
+        verifyNoInteractions(mUpClient);
     }
 }

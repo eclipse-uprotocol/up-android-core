@@ -18,13 +18,17 @@
  * specific language governing permissions and limitations
  * under the License.
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.eclipse.uprotocol.core.udiscovery.common;
 
+import static org.eclipse.uprotocol.core.udiscovery.v3.UDiscovery.SERVICE;
+
 import org.eclipse.uprotocol.v1.UAuthority;
+import org.eclipse.uprotocol.v1.UResource;
+import org.eclipse.uprotocol.v1.UUri;
 
 
 public class Constants {
@@ -44,6 +48,9 @@ public class Constants {
             String.join(".", LDS_DEVICE_NAME, LDS_DOMAIN_NAME)).build();
 
     public static final String UNEXPECTED_PAYLOAD = "Unexpected payload";
+
+    public static final UUri TOPIC_NODE_NOTIFICATION = UUri.newBuilder().setEntity(SERVICE)
+                .setResource(UResource.newBuilder().setName("nodes").setMessage("Notification").build()).build();
 
     private Constants() {
     }
