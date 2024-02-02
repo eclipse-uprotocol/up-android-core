@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Simulator Proxy</string>
+    <string name="service_is_running">Simulator Proxy Service is running</string>
+    <string name="version">"Version : "</string>
+</resources>
