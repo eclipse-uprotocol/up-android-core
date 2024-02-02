@@ -5,7 +5,7 @@
 :source-highlighter: coderay
 
 == Overview
-The Simulator Proxy Android App serves as a bridge between a Python-based up-simulator and an Android up Client Library (up-client-android-java). The simulator, written in Python, cannot directly communicate with the up-client-android. To enable communication between these components, this proxy Android app is used.
+The Simulator Proxy is an Android App serves as a bridge between a Python-based up-simulator and an Android up Client Library (up-client-android-java).
 
 == Getting Started
 === Building the Project

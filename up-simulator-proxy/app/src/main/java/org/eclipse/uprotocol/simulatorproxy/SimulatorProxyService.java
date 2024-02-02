@@ -210,14 +210,14 @@ public class SimulatorProxyService extends Service {
 
         mUPClient = UPClient.create(getApplicationContext(), AP_ENTITY, mExecutor, (client, ready) -> {
             if (ready) {
-                Log.i(LOG_TAG, join(Key.EVENT, "AP client connected"));
+                Log.i(LOG_TAG, join(Key.EVENT, "Simulator proxy client connected"));
             } else {
                 Log.w(LOG_TAG, join(Key.EVENT, "up client unexpectedly disconnected"));
             }
         });
         mUSubscriptionStub = USubscription.newStub(mUPClient);
         mUPClient.connect().thenCompose(status -> {
-            logStatus("AP connect", status);
+            logStatus("Simulator Proxy up client connect", status);
             return isOk(status) ? CompletableFuture.completedFuture(status) : CompletableFuture.failedFuture(new UStatusException(status));
         });
 
