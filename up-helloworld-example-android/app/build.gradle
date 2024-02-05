@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: DOCUMENTATION
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+//file:noinspection DependencyNotationArgument
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply from : "../gradle/dependencies.gradle"
+
+android {
+    namespace "org.eclipse.uprotocol.uphelloworld.app"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "org.eclipse.uprotocol.uphelloworld.app"
+        minSdk 31
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    signingConfigs {
+        platform {
+            storeFile file('certs/platform.keystore')
+            storePassword 'android'
+            keyAlias 'platform'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.platform
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.platform
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    lint {
+        abortOnError false
+    }
+}
+kotlin {
+    jvmToolchain(17)
+}
+dependencies {
+    implementation lib.androidx_core
+    implementation lib.appcompat
+    implementation lib.material
+    implementation lib.constraintlayout
+    implementation lib.activity
+    implementation lib.legacy_support
+    implementation lib.lifecycle_service
+
+    // UProtocol
+    implementation lib.uprotocol_client
+    implementation lib.uprotocol
+    implementation lib.google_common_protos
+    implementation lib.covesa_uservices
+
+    // Test dependencies
+    testImplementation lib.junit
+    androidTestImplementation lib.androidx_test
+    androidTestImplementation lib.espresso_core
+}

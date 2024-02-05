@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: DOCUMENTATION
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+ext {
+    // Versions
+    kotlin_version = "1.8.21"
+    android_gradle_version = "8.2.0"
+    androidx_core_version = "1.12.0"
+    appcompat_version = "1.6.1"
+    material_version = "1.11.0"
+    constraintlayout_version = "2.1.4"
+    activity_version = "1.8.2"
+    legacy_support_version = "1.0.0"
+    lifecycle_version = "2.7.0"
+
+    uprotocol_client_version = "1.5.0"
+    uprotocol_version = "1.5.7"
+    google_common_protos_version = "2.9.6"
+
+    junit_version = "4.13.2"
+    androidx_test_version = "1.1.5"
+    espresso_version = "3.5.1"
+
+    // Dependencies
+    lib = [
+            // Gradle Plugin
+            kotlin_gradle_plugin: "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}",
+            android_gradle_plugin: "com.android.tools.build:gradle:${android_gradle_version}",
+
+            // AndroidX libraries
+            androidx_core: "androidx.core:core-ktx:${androidx_core_version}",
+            appcompat: "androidx.appcompat:appcompat:${appcompat_version}",
+            material: "com.google.android.material:material:${material_version}",
+            constraintlayout: "androidx.constraintlayout:constraintlayout:${constraintlayout_version}",
+            activity: "androidx.activity:activity-ktx:${activity_version}",
+            legacy_support: "androidx.legacy:legacy-support-v4:${legacy_support_version}",
+            lifecycle_service: "androidx.lifecycle:lifecycle-service:${lifecycle_version}",
+
+            // UProtocol
+            uprotocol_client: "org.eclipse.uprotocol:up-client-android-java:${uprotocol_client_version}",
+            uprotocol: "org.eclipse.uprotocol:up-java:${uprotocol_version}",
+            google_common_protos: "com.google.api.grpc:proto-google-common-protos:${google_common_protos_version}",
+
+            //protobuf
+            covesa_uservices: files('../libs/uservices-api-0.1.0-SNAPSHOT.jar'),
+
+            // Test dependencies
+            junit: "junit:junit:${junit_version}",
+            androidx_test: "androidx.test.ext:junit:${androidx_test_version}",
+            espresso_core: "androidx.test.espresso:espresso-core:${espresso_version}"
+    ]
+}

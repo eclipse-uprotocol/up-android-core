@@ -1,0 +1,50 @@
+{
+  "uri": "up:/example.hello_world",
+  "nodes": [
+    {
+      "uri": "up:/example.hello_world/1",
+      "nodes": [
+        {
+          "uri": "up:/example.hello_world/1/rpc.SayHello",
+          "properties": {
+            "id": {
+              "uInteger": 1
+            }
+          },
+          "type": "METHOD"
+        },
+        {
+          "uri": "up:/example.hello_world/1/one_second#Timer",
+          "properties": {
+            "id": {
+              "uInteger": 1
+            }
+          },
+          "type": "TOPIC"
+        },
+        {
+          "uri": "up:/example.hello_world/1/one_minute#Timer",
+          "properties": {
+            "id": {
+              "uInteger": 2
+            }
+          },
+          "type": "TOPIC"
+        }
+      ],
+      "properties": {
+        "id": {
+          "uInteger": 3000
+        },
+        "major_version": {
+          "uInteger": 1
+        },
+        "minor_version": {
+          "uInteger": 0
+        }
+      },
+      "type": "VERSION"
+    }
+  ],
+  "type": "ENTITY"
+}

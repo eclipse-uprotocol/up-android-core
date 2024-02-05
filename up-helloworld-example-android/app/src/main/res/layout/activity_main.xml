@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: SOURCE
+ *
+ * SPDX-FileCopyrightText: 2024 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context="org.eclipse.uprotocol.uphelloworld.app.MainActivity">
+
+
+    <EditText
+        android:id="@+id/editText_name"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="70dp"
+        android:autofillHints="username"
+        android:fontFamily="serif-monospace"
+        android:hint="@string/editText_enter_your_name"
+        android:inputType="text"
+        android:maxLines="1"
+        android:textAlignment="center"
+        android:textColor="@android:color/background_dark"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/button_sayHello"
+        android:layout_width="150dp"
+        android:layout_height="79dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="@color/design_default_color_secondary"
+        android:fontFamily="serif"
+        android:text="@string/button_say_hello"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        app:layout_constraintStart_toEndOf="@id/editText_name"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/textView_response_title"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="150dp"
+        android:text="@string/textView_rpc_response"
+        android:textSize="25sp"
+        android:textStyle="italic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_response"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="155dp"
+        android:fontFamily="serif-monospace"
+        android:textAlignment="center"
+        android:textColor="@color/design_default_color_error"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/textView_response_title"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_sub_sec"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="250dp"
+        android:text="@string/button_subscribe_sec"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_unsub_sec"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="20dp"
+        android:text="@string/button_unsubscribe_sec"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@id/button_sub_sec"
+        app:layout_constraintTop_toTopOf="@id/button_sub_sec" />
+
+    <TextView
+        android:id="@+id/textView_sec_display"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="350dp"
+        android:fontFamily="serif-monospace"
+        android:gravity="center"
+        android:hint="@string/textView_default_time"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="60sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_sub_min"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="450dp"
+        android:backgroundTint="#FF8800EE"
+        android:text="@string/button_subscribe_min"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/button_unsub_min"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="20dp"
+        android:backgroundTint="#FF8800EE"
+        android:text="@string/button_unsubscribe_min"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@id/button_sub_min"
+        app:layout_constraintTop_toTopOf="@id/button_sub_min" />
+
+    <TextView
+        android:id="@+id/textView_min_display"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="550dp"
+        android:fontFamily="serif-monospace"
+        android:gravity="center"
+        android:hint="@string/textView_default_time"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="60sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
