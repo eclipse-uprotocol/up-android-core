@@ -1,34 +1,31 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+/*
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: DOCUMENTATION
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 buildscript {
     repositories {
-        maven {
-            url "https://artifactory-wrn.ultracruise.gm.com/artifactory/ultifi-mvn-virtual-all"
-            credentials {
-                username System.getenv('artifactory_wrn_ultracruise_gm_comUsername') ?: (findProperty('artifactory_wrn_ultracruise_gm_comUsername') ? "$artifactory_wrn_ultracruise_gm_comUsername" : '')
-                password System.getenv('artifactory_wrn_ultracruise_gm_comPassword') ?: (findProperty('artifactory_wrn_ultracruise_gm_comPassword') ? "$artifactory_wrn_ultracruise_gm_comPassword" : '')
-            }
-        }
+        mavenCentral()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.0'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
 allprojects {
     repositories {
-        maven {
-            url "https://artifactory-wrn.ultracruise.gm.com/artifactory/ultifi-mvn-virtual-all"
-            credentials {
-                username System.getenv('artifactory_wrn_ultracruise_gm_comUsername') ?: (findProperty('artifactory_wrn_ultracruise_gm_comUsername') ? "$artifactory_wrn_ultracruise_gm_comUsername" : '')
-                password System.getenv('artifactory_wrn_ultracruise_gm_comPassword') ?: (findProperty('artifactory_wrn_ultracruise_gm_comPassword') ? "$artifactory_wrn_ultracruise_gm_comPassword" : '')
-            }
-        }
         mavenCentral()
+        google()
         mavenLocal()
     }
 }

@@ -52,14 +52,12 @@ The `<service>` entry must also declare its UProtocol entity name and version as
 
 ### Gradle
 
-At the project level build.gradle, the 'https://info-artifactory.gm.com/artifactory/info-maven'
-maven URL provides access to the uProtocol libraries.
-
 At the service level build.gradle, the following libraries are needed for utilizing uProtocol:
     `org.eclipse.uprotocol:up-java:x.x.x` is needed for accessing 'UPClient' and UP related classes used to subscribe and unsubscribe to topics.
     `org.eclipse.uprotocol:up-client-android-java:x.x.x` is needed for accessing the 'UPClient' class.
     `com.google.protobuf:protobuf-java:x.x.x` is needed for generate proto java classes.
     `com.google.api.grpc:proto-google-common-protos:x.x.x` is needed as a dependency for up-client-android-java.
+
 ### Connecting to the UPClient
 
 When your service's `onCreate` function runs, it should first create an instance of `UPClient`.

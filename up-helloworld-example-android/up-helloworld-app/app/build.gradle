@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: DOCUMENTATION
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 plugins {
     id 'com.android.application'
     id 'com.google.protobuf'
@@ -6,11 +18,11 @@ plugins {
 }
 
 android {
-    namespace "com.gm.ultifi.helloultifiuserapp"
+    namespace "org.eclipse.uprotocol.example.uphelloworldapp"
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.gm.ultifi.helloultifiuserapp"
+        applicationId "org.eclipse.uprotocol.example.uphelloworldapp"
         minSdk 31
         targetSdk 34
         versionCode 1

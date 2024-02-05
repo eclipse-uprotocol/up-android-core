@@ -1,4 +1,4 @@
-package com.gm.ultifi.helloultifiuserapp
+package org.eclipse.uprotocol.example.uphelloworldapp
 
 import org.junit.Assert
 import org.junit.Test

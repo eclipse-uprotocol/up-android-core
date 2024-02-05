@@ -1,6 +1,18 @@
+<!--
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: SOURCE
+ *
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+-->
 <resources>
-    <string name="app_name">Hello uUser!</string>
-    <string name="editText_enter_your_name">Enter your name ...</string>
+    <string name="app_name">Hello World App!</string>
+    <string name="editText_enter_your_name">Enter your name…</string>
     <string name="button_say_hello">Say Hello !</string>
     <string name="textView_rpc_response">RPC Response:</string>
     <string name="button_subscribe_sec">Subscribe SEC</string>

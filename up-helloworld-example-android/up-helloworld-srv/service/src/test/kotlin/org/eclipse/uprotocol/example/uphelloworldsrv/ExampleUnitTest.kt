@@ -1,4 +1,4 @@
-package com.gm.ultifi.helloultifiusersrv
+package org.eclipse.uprotocol.example.uphelloworldsrv
 
 import org.junit.Assert
 import org.junit.Test
