@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Hello uUser!</string>
+    <string name="editText_enter_your_name">Enter your name ...</string>
+    <string name="button_say_hello">Say Hello !</string>
+    <string name="textView_rpc_response">RPC Response:</string>
+    <string name="button_subscribe_sec">Subscribe SEC</string>
+    <string name="button_unsubscribe_sec">UnSubscribe SEC</string>
+    <string name="button_subscribe_min">Subscribe MIN</string>
+    <string name="button_unsubscribe_min">UnSubscribe MIN</string>
+    <string name="time_display">%1$02d:%2$02d:%3$02d</string>
+</resources>

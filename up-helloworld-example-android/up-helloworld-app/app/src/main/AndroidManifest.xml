@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="uprotocol.permission.ACCESS_UBUS" />
+
+    <application
+        android:icon="@drawable/ultifi"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ultifi"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.HelloUserApp">
+        <meta-data
+            android:name="uprotocol.entity.name"
+            android:value="gm.vehicle.hellouser_app" />
+        <meta-data
+            android:name="uprotocol.entity.version"
+            android:value="1" />
+        <activity
+            android:name="com.gm.ultifi.helloultifiuserapp.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

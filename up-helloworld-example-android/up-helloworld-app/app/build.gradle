@@ -1,0 +1,96 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.protobuf'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace "com.gm.ultifi.helloultifiuserapp"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.gm.ultifi.helloultifiuserapp"
+        minSdk 31
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    signingConfigs {
+        platform {
+            storeFile file('certs/platform.keystore')
+            storePassword 'android'
+            keyAlias 'platform'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.platform
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.platform
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    lint {
+        abortOnError false
+    }
+}
+kotlin {
+    jvmToolchain(17)
+}
+
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:3.19.2" }
+    plugins {
+        java {
+            artifact = "com.google.protobuf:protoc-gen-java:3.0.0"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {}
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.activity:activity-ktx:1.8.2"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    // UProtocol
+    implementation 'org.eclipse.uprotocol:up-client-android-java:1.5.0'
+    implementation 'org.eclipse.uprotocol:up-java:1.5.7'
+    implementation "com.google.protobuf:protobuf-java:3.21.10"
+    implementation "com.google.api.grpc:proto-google-common-protos:2.9.6"
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
