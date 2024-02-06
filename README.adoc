@@ -17,4 +17,7 @@ Android uPlatform implementation using the Binder uTransport.
 |link:up-example-android/README.adoc[*Example*]
 |Android applications demonstrating implementations of uService and uClient entities
 
+|link:up-simulator-proxy/README.adoc[*upSimulator Proxy*]
+|Android application acting as a proxy to the up-simulator
+
 |===

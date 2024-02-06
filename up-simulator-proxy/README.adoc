@@ -1,0 +1,44 @@
+= Simulator Proxy Android App
+:toc:
+:toclevels: 3
+:sectnums:
+:source-highlighter: coderay
+
+== Overview
+The Simulator Proxy is an Android App serves as a bridge between a Python-based up-simulator and an Android up Client Library (up-client-android-java).
+
+== Getting Started
+=== Building the Project
+The Android Gradle Plugin provides several standard tasks that are commonly used in Android projects. To view the complete list, you can use the following command:
+
+[,bash]
+----
+gradlew tasks
+----
+
+Assembling it is as simple as:
+
+[,bash]
+----
+gradlew assembleRelease
+----
+
+=== Installing the Build
+Install simulator proxy application using:
+[,bash]
+----
+adb install ./app/build/outputs/apk/release/uPSimulatorProxy-release.apk
+----
+
+or
+[,bash]
+----
+gradlew installRelease
+----
+
+=== Starting the Application
+Start simulator proxy application using:
+[,bash]
+----
+adb shell am start -n org.eclipse.uprotocol.simulatorproxy/.MainActivity
+----

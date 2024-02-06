@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (c) 2024 General Motors GTO LLC.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-FileType: SOURCE
+ *
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="uprotocol.permission.ACCESS_UBUS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme">
+        <service
+            android:name=".SimulatorProxyService"
+            android:enabled="true"
+            android:exported="false">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="android.proxy" />
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <service
+            android:name=".vehicleservice.BodyMirrors"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="body.mirrors" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Braking"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="chassis.braking" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.CabinClimate"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="body.cabin_climate" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Chassis"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="chassis" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Engine"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="propulsion.engine" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Exterior"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="vehicle.exterior" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.HelloWorld"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="example.hello_world" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Horn"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="body.horn" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Suspension"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="chassis.suspension" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+
+        <service
+            android:name=".vehicleservice.Transmission"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="propulsion.transmission" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+        <service
+            android:name=".vehicleservice.Vehicle"
+            android:enabled="true"
+            android:singleUser="true">
+            <meta-data
+                android:name="uprotocol.entity.name"
+                android:value="vehicle" />
+
+            <meta-data
+                android:name="uprotocol.entity.version"
+                android:value="1" />
+        </service>
+
+    </application>
+</manifest>
