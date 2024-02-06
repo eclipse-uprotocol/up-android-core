@@ -10,5 +10,6 @@ These are the major contributors to Eclipse Android uPlatform Implementation
 |https://github.com/kz9nyy[kz9nyy] |Christian Hessler
 |https://github.com/murugesh83[murugesh83] |Murugesan Sagadevan
 |https://github.com/kdtyler[kdtyler] |Kevin Tyler
+|https://github.com/jvnaiduwin[jvnaiduwin] |J Vignesh Naidu
 
 |===

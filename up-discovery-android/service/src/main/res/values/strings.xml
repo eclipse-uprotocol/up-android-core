@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">uDiscovery Service</string>
+    <string name="notification_title">App is running in background</string>
+</resources>

@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "f3a55309ed0801ce220d9fd3ff16b040",
+    "entities": [
+      {
+        "tableName": "Observer",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`nodeUri` TEXT NOT NULL, `observer` TEXT NOT NULL, PRIMARY KEY(`nodeUri`, `observer`))",
+        "fields": [
+          {
+            "fieldPath": "nodeUri",
+            "columnName": "nodeUri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observer",
+            "columnName": "observer",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "nodeUri",
+            "observer"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f3a55309ed0801ce220d9fd3ff16b040')"
+    ]
+  }
+}
