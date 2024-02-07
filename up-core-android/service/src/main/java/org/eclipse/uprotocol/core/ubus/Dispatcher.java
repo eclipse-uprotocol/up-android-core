@@ -291,7 +291,7 @@ public class Dispatcher extends UBus.Component {
         if (message == null) {
             return;
         }
-        final UUri source = message.getSource();
+        final UUri source = message.getAttributes().getSource();
         final Client remoteClient = mClientManager.getRemoteClient();
         final LinkedList<Client> clients = new LinkedList<>();
         final LinkedList<UUri> remoteSinks = new LinkedList<>();
@@ -334,7 +334,7 @@ public class Dispatcher extends UBus.Component {
     }
 
     private @NonNull UStatus handleGenericMessage(@NonNull UMessage message, @NonNull Client client) {
-        final UUri topic = message.getSource();
+        final UUri topic = message.getAttributes().getSource();
         try {
             checkAuthority(topic, client);
             checkArgument(!isExpired(message), UCode.DEADLINE_EXCEEDED, "Event expired");

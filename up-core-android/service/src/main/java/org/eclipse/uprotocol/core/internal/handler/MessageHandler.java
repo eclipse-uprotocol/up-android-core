@@ -161,15 +161,6 @@ public class MessageHandler implements UListener {
     }
 
     @Override
-    public void onReceive(@NonNull UUri source, @NonNull UPayload payload, @NonNull UAttributes attributes) {
-        onReceive(UMessage.newBuilder()
-                .setSource(source)
-                .setPayload(payload)
-                .setAttributes(attributes)
-                .build());
-    }
-
-    @Override
     public void onReceive(@NonNull UMessage message) {
         switch (message.getAttributes().getType()) {
             case UMESSAGE_TYPE_PUBLISH -> handleGenericMessage(message);
@@ -182,7 +173,7 @@ public class MessageHandler implements UListener {
     }
 
     private void handleGenericMessage(@NonNull UMessage message) {
-        final UUri uri = message.getSource();
+        final UUri uri = message.getAttributes().getSource();
         final Set<UListener> listeners = mListeners.get(uri);
         if (listeners != null) {
             mExecutor.execute(() -> listeners.forEach(listener -> listener.onReceive(message)));

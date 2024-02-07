@@ -49,7 +49,7 @@ public interface UMessageUtils {
 
     static @NonNull UMessage checkMessageValid(@NonNull UMessage message) {
         final UAttributes attributes = message.getAttributes();
-        final UUri source = message.getSource();
+        final UUri source = attributes.getSource();
         switch (attributes.getType()) {
             case UMESSAGE_TYPE_PUBLISH -> checkTopicUriValid(source);
             case UMESSAGE_TYPE_REQUEST -> checkResponseUriValid(source);
@@ -65,7 +65,9 @@ public interface UMessageUtils {
 
     static @NonNull UMessage replaceSource(@NonNull UMessage message, @NonNull UUri source) {
         return UMessage.newBuilder(message)
-                .setSource(source)
+                .setAttributes(UAttributes.newBuilder(message.getAttributes())
+                        .setSource(source)
+                        .build())
                 .build();
     }
 
@@ -133,9 +135,8 @@ public interface UMessageUtils {
     static @NonNull UMessage buildResponseMessage(@NonNull UMessage requestMessage, @NonNull UPayload responsePayload) {
         final UAttributes requestAttributes = requestMessage.getAttributes();
         return UMessage.newBuilder()
-                .setSource(requestAttributes.getSink())
                 .setAttributes(UAttributesBuilder
-                        .response(UPriority.UPRIORITY_CS4, requestMessage.getSource(), requestAttributes.getId())
+                        .response(requestAttributes.getSink(), UPriority.UPRIORITY_CS4, requestMessage.getAttributes().getSource(), requestAttributes.getId())
                         .build())
                 .setPayload(responsePayload)
                 .build();
@@ -145,9 +146,8 @@ public interface UMessageUtils {
     static @NonNull UMessage buildFailedResponseMessage(@NonNull UMessage requestMessage, @NonNull UCode failure) {
         final UAttributes requestAttributes = requestMessage.getAttributes();
         return UMessage.newBuilder()
-                .setSource(requestAttributes.getSink())
                 .setAttributes(UAttributesBuilder
-                        .response(UPriority.UPRIORITY_CS4, requestMessage.getSource(), requestAttributes.getId())
+                        .response(requestAttributes.getSink(), UPriority.UPRIORITY_CS4, requestMessage.getAttributes().getSource(), requestAttributes.getId())
                         .withCommStatus(failure.getNumber())
                         .build())
                 .build();
