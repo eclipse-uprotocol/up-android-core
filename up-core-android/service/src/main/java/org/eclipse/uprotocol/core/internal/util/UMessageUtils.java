@@ -23,10 +23,6 @@
  */
 package org.eclipse.uprotocol.core.internal.util;
 
-import static org.eclipse.uprotocol.core.internal.util.UUriUtils.checkMethodUriValid;
-import static org.eclipse.uprotocol.core.internal.util.UUriUtils.checkResponseUriValid;
-import static org.eclipse.uprotocol.core.internal.util.UUriUtils.checkTopicUriValid;
-
 import androidx.annotation.NonNull;
 
 import org.eclipse.uprotocol.common.UStatusException;
@@ -49,13 +45,6 @@ public interface UMessageUtils {
 
     static @NonNull UMessage checkMessageValid(@NonNull UMessage message) {
         final UAttributes attributes = message.getAttributes();
-        final UUri source = attributes.getSource();
-        switch (attributes.getType()) {
-            case UMESSAGE_TYPE_PUBLISH -> checkTopicUriValid(source);
-            case UMESSAGE_TYPE_REQUEST -> checkResponseUriValid(source);
-            case UMESSAGE_TYPE_RESPONSE -> checkMethodUriValid(source);
-            default -> throw new UStatusException(UCode.INVALID_ARGUMENT, "Unknown message type");
-        }
         final ValidationResult result = UAttributesValidator.getValidator(attributes).validate(attributes);
         if (result.isFailure()) {
             throw new UStatusException(result.toStatus());
@@ -136,7 +125,7 @@ public interface UMessageUtils {
         final UAttributes requestAttributes = requestMessage.getAttributes();
         return UMessage.newBuilder()
                 .setAttributes(UAttributesBuilder
-                        .response(requestAttributes.getSink(), UPriority.UPRIORITY_CS4, requestMessage.getAttributes().getSource(), requestAttributes.getId())
+                        .response(requestAttributes.getSink(), requestAttributes.getSource(), UPriority.UPRIORITY_CS4, requestAttributes.getId())
                         .build())
                 .setPayload(responsePayload)
                 .build();
@@ -147,7 +136,7 @@ public interface UMessageUtils {
         final UAttributes requestAttributes = requestMessage.getAttributes();
         return UMessage.newBuilder()
                 .setAttributes(UAttributesBuilder
-                        .response(requestAttributes.getSink(), UPriority.UPRIORITY_CS4, requestMessage.getAttributes().getSource(), requestAttributes.getId())
+                        .response(requestAttributes.getSink(), requestAttributes.getSource(), UPriority.UPRIORITY_CS4, requestAttributes.getId())
                         .withCommStatus(failure.getNumber())
                         .build())
                 .build();

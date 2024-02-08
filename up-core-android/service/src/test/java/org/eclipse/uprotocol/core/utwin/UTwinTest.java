@@ -176,7 +176,7 @@ public class UTwinTest extends TestBase {
             assertStatus(UCode.OK, response.getStatus());
             final UUri topic = response.getTopic();
             final UMessage message = response.getMessage();
-            assertEquals(topic, message.getSource());
+            assertEquals(topic, message.getAttributes().getSource());
             assertTrue(topics.contains(topic));
             assertTrue(messages.contains(message));
         });

@@ -83,7 +83,6 @@ public class RpcExecutorTest extends TestBase {
         assertFalse(empty.hasPendingRequests());
         final UMessage responseMessage = buildResponseMessage(buildRequestMessage());
         empty.onReceive(responseMessage);
-        empty.onReceive(responseMessage.getSource(), responseMessage.getPayload(), responseMessage.getAttributes());
     }
 
     @Test
@@ -112,7 +111,7 @@ public class RpcExecutorTest extends TestBase {
         verify(mUBus, timeout(DELAY_MS).times(1)).send(captor.capture(), any());
         assertFalse(responseFuture.isDone());
         final UMessage responseMessage = buildFailureResponseMessage(captor.getValue(), UCode.ABORTED);
-        mRpcExecutor.onReceive(responseMessage.getSource(), responseMessage.getPayload(), responseMessage.getAttributes());
+        mRpcExecutor.onReceive(responseMessage);
         final Exception exception = assertThrows(ExecutionException.class,
                 () -> responseFuture.get(DELAY_MS, TimeUnit.MILLISECONDS));
         assertStatus(UCode.ABORTED, toStatus(exception));

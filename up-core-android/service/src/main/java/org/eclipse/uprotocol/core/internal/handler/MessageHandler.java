@@ -39,7 +39,6 @@ import org.eclipse.uprotocol.core.internal.rpc.RpcExecutor;
 import org.eclipse.uprotocol.core.ubus.UBus;
 import org.eclipse.uprotocol.rpc.URpcListener;
 import org.eclipse.uprotocol.transport.UListener;
-import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UEntity;
 import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UPayload;

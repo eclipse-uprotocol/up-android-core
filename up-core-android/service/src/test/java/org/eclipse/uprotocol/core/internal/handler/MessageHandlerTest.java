@@ -177,7 +177,7 @@ public class MessageHandlerTest extends TestBase {
     @Test
     public void testOnReceiveGenericMessageUnregistered() {
         final UMessage message = buildPublishMessage(RESOURCE2_URI);
-        mMessageHandler.onReceive(message.getSource(), message.getPayload(), message.getAttributes());
+        mMessageHandler.onReceive(message);
         verify(mListener1, never()).onReceive(message);
         verify(mRpcListener1, never()).onReceive(eq(message), any());
     }
@@ -201,8 +201,8 @@ public class MessageHandlerTest extends TestBase {
         final CompletableFuture<UPayload> responseFuture = captor.getValue();
         responseFuture.complete(PAYLOAD);
         verify(mUBus, times(1)).send(argThat(message -> {
-            assertEquals(METHOD_URI, message.getSource());
             assertEquals(PAYLOAD, message.getPayload());
+            assertEquals(METHOD_URI, message.getAttributes().getSource());
             assertEquals(RESPONSE_URI, message.getAttributes().getSink());
             return true;
         }), eq(mClientToken));
@@ -219,8 +219,8 @@ public class MessageHandlerTest extends TestBase {
         final CompletableFuture<UPayload> responseFuture = captor.getValue();
         responseFuture.completeExceptionally(new UStatusException(UCode.ABORTED, "Aborted"));
         verify(mUBus, times(1)).send(argThat(message -> {
-            assertEquals(METHOD_URI, message.getSource());
             assertEquals(UPayload.getDefaultInstance(), message.getPayload());
+            assertEquals(METHOD_URI, message.getAttributes().getSource());
             assertEquals(RESPONSE_URI, message.getAttributes().getSink());
             assertEquals(UCode.ABORTED_VALUE, message.getAttributes().getCommstatus());
             return true;
@@ -266,7 +266,7 @@ public class MessageHandlerTest extends TestBase {
     @Test
     public void testOnReceiveUnknownMessage() {
         registerListeners();
-        final UMessage message = buildMessage(RESOURCE_URI, PAYLOAD, UAttributes.getDefaultInstance());
+        final UMessage message = buildMessage(PAYLOAD, UAttributes.getDefaultInstance());
         mMessageHandler.onReceive(message);
         verify(mListener1, never()).onReceive(message);
         verify(mRpcListener1, never()).onReceive(eq(message), any());

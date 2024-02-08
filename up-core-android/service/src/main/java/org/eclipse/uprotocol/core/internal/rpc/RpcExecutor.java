@@ -88,7 +88,7 @@ public class RpcExecutor implements RpcClient, UListener {
     @Override
     public @NonNull CompletionStage<UMessage> invokeMethod(@NonNull UUri methodUri, @NonNull UPayload requestPayload,
             @NonNull CallOptions options) {
-        final UAttributesBuilder builder = UAttributesBuilder.request(mResponseUri, REQUEST_PRIORITY, methodUri, options.timeout());
+        final UAttributesBuilder builder = UAttributesBuilder.request(mResponseUri, methodUri, REQUEST_PRIORITY, options.timeout());
         options.token().ifPresent(builder::withToken);
         final UMessage requestMessage = UMessage.newBuilder()
                 .setPayload(requestPayload)
