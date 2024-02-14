@@ -33,6 +33,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -83,8 +84,8 @@ public class UTwinTest extends TestBase {
                 .build();
         when(mUBus.registerClient(any(), any(), any())).thenReturn(STATUS_OK);
         when(mUBus.unregisterClient(any())).thenReturn(STATUS_OK);
-        when(mUBus.enableDispatching(any(), any(), any())).thenReturn(STATUS_OK);
-        when(mUBus.disableDispatching(any(), any(), any())).thenReturn(STATUS_OK);
+        when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_OK);
+        when(mUBus.disableDispatching(any(), anyInt(), any())).thenReturn(STATUS_OK);
         mUTwin.init(uCore);
     }
 
@@ -123,15 +124,15 @@ public class UTwinTest extends TestBase {
     @Test
     public void testInit() {
         verify(mUBus, times(1)).registerClient(eq(UTwin.SERVICE), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(GET_LAST_MESSAGES.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(SET_LAST_MESSAGE.localUri()), any(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(GET_LAST_MESSAGES.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(SET_LAST_MESSAGE.localUri()), anyInt(), any());
     }
 
     @Test
     public void testShutdown() {
         mUTwin.shutdown();
-        verify(mUBus, times(1)).disableDispatching(eq(GET_LAST_MESSAGES.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(SET_LAST_MESSAGE.localUri()), any(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(GET_LAST_MESSAGES.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(SET_LAST_MESSAGE.localUri()), anyInt(), any());
         verify(mUBus, times(1)).unregisterClient(any());
     }
 

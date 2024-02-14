@@ -40,7 +40,6 @@ import static java.util.Optional.ofNullable;
 
 import android.content.Context;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -69,8 +68,6 @@ public class UBus extends UCore.Component {
             .setName("core.ubus")
             .setVersionMajor(1)
             .build();
-
-    public static final String EXTRA_BLOCK_AUTO_FETCH = "blockAutoFetch";
 
     private final IBinder mClientToken = new Binder();
     private final Context mContext;
@@ -223,7 +220,7 @@ public class UBus extends UCore.Component {
         }
     }
 
-    public @NonNull List<UMessage> pull(@NonNull UUri uri, int count, @Nullable Bundle ignored, @NonNull IBinder clientToken) {
+    public @NonNull List<UMessage> pull(@NonNull UUri uri, int count, int ignored, @NonNull IBinder clientToken) {
         try {
             return mDispatcher.pull(uri, count, mClientManager.getClientOrThrow(clientToken));
         } catch (Exception e) {
@@ -232,18 +229,17 @@ public class UBus extends UCore.Component {
         }
     }
 
-    public @NonNull UStatus enableDispatching(@NonNull UUri uri, @Nullable Bundle extras, @NonNull IBinder clientToken) {
+    public @NonNull UStatus enableDispatching(@NonNull UUri uri, int flags, @NonNull IBinder clientToken) {
         try {
-            return mDispatcher.enableDispatching(uri, extras, mClientManager.getClientOrThrow(clientToken));
+            return mDispatcher.enableDispatching(uri, flags, mClientManager.getClientOrThrow(clientToken));
         } catch (Exception e) {
             return toStatus(e);
         }
     }
 
-    public @NonNull UStatus disableDispatching(@NonNull UUri uri, @Nullable Bundle extras,
-            @NonNull IBinder clientToken) {
+    public @NonNull UStatus disableDispatching(@NonNull UUri uri, int flags, @NonNull IBinder clientToken) {
         try {
-            return mDispatcher.disableDispatching(uri, extras, mClientManager.getClientOrThrow(clientToken));
+            return mDispatcher.disableDispatching(uri, flags, mClientManager.getClientOrThrow(clientToken));
         } catch (Exception e) {
             return toStatus(e);
         }

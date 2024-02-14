@@ -211,63 +211,63 @@ public class UBusTest extends TestBase {
     public void testPullNotRegisteredClient() {
         final UStatus status = buildStatus(UCode.UNAUTHENTICATED);
         when(mClientManager.getClientOrThrow(mClientToken)).thenThrow(new UStatusException(status));
-        assertEquals(emptyList(), mUBus.pull(RESOURCE_URI, 1, null, mClientToken));
+        assertEquals(emptyList(), mUBus.pull(RESOURCE_URI, 1, 0, mClientToken));
     }
 
     @Test
     public void testPullExceptionally() {
         final UStatus status = buildStatus(UCode.UNKNOWN);
         when(mDispatcher.pull(RESOURCE_URI, 1, mClient)).thenThrow(new UStatusException(status));
-        assertEquals(emptyList(), mUBus.pull(RESOURCE_URI, 1, null, mClientToken));
+        assertEquals(emptyList(), mUBus.pull(RESOURCE_URI, 1, 0, mClientToken));
     }
 
     @Test
     public void testPull() {
         final List<UMessage> result = List.of(buildPublishMessage());
         when(mDispatcher.pull(RESOURCE_URI, 1, mClient)).thenReturn(result);
-        assertEquals(result, mUBus.pull(RESOURCE_URI, 1, null, mClientToken));
+        assertEquals(result, mUBus.pull(RESOURCE_URI, 1, 0, mClientToken));
     }
 
     @Test
     public void testEnableDispatchingNotRegisteredClient() {
         final UStatus status = buildStatus(UCode.UNAUTHENTICATED);
         when(mClientManager.getClientOrThrow(mClientToken)).thenThrow(new UStatusException(status));
-        assertEquals(status, mUBus.enableDispatching(RESOURCE_URI, null, mClientToken));
+        assertEquals(status, mUBus.enableDispatching(RESOURCE_URI, 0, mClientToken));
     }
 
     @Test
     public void testEnableDispatchingExceptionally() {
         final UStatus status = buildStatus(UCode.UNKNOWN);
-        when(mDispatcher.enableDispatching(RESOURCE_URI, null, mClient)).thenThrow(new UStatusException(status));
-        assertEquals(status, mUBus.enableDispatching(RESOURCE_URI, null, mClientToken));
+        when(mDispatcher.enableDispatching(RESOURCE_URI, 0, mClient)).thenThrow(new UStatusException(status));
+        assertEquals(status, mUBus.enableDispatching(RESOURCE_URI, 0, mClientToken));
     }
 
     @Test
     public void testEnableDispatching() {
         final UStatus status = STATUS_OK;
-        when(mDispatcher.enableDispatching(RESOURCE_URI, null, mClient)).thenReturn(status);
-        assertEquals(status, mUBus.enableDispatching(RESOURCE_URI, null, mClientToken));
+        when(mDispatcher.enableDispatching(RESOURCE_URI, 0, mClient)).thenReturn(status);
+        assertEquals(status, mUBus.enableDispatching(RESOURCE_URI, 0, mClientToken));
     }
 
     @Test
     public void testDisableDispatchingNotRegisteredClient() {
         final UStatus status = buildStatus(UCode.UNAUTHENTICATED);
         when(mClientManager.getClientOrThrow(mClientToken)).thenThrow(new UStatusException(status));
-        assertEquals(status, mUBus.disableDispatching(RESOURCE_URI, null, mClientToken));
+        assertEquals(status, mUBus.disableDispatching(RESOURCE_URI, 0, mClientToken));
     }
 
     @Test
     public void testDisableDispatchingExceptionally() {
         final UStatus status = buildStatus(UCode.UNKNOWN);
-        when(mDispatcher.disableDispatching(RESOURCE_URI, null, mClient)).thenThrow(new UStatusException(status));
-        assertEquals(status, mUBus.disableDispatching(RESOURCE_URI, null, mClientToken));
+        when(mDispatcher.disableDispatching(RESOURCE_URI, 0, mClient)).thenThrow(new UStatusException(status));
+        assertEquals(status, mUBus.disableDispatching(RESOURCE_URI, 0, mClientToken));
     }
 
     @Test
     public void testDisableDispatching() {
         final UStatus status = STATUS_OK;
-        when(mDispatcher.disableDispatching(RESOURCE_URI, null, mClient)).thenReturn(status);
-        assertEquals(status, mUBus.disableDispatching(RESOURCE_URI, null, mClientToken));
+        when(mDispatcher.disableDispatching(RESOURCE_URI, 0, mClient)).thenReturn(status);
+        assertEquals(status, mUBus.disableDispatching(RESOURCE_URI, 0, mClientToken));
     }
 
     @Test

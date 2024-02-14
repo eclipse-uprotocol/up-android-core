@@ -28,7 +28,6 @@ import static org.eclipse.uprotocol.common.util.log.Formatter.stringify;
 import static org.eclipse.uprotocol.core.internal.util.log.FormatterExt.stringify;
 import static org.eclipse.uprotocol.core.ubus.UBus.Component.logStatus;
 
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -76,9 +75,9 @@ public class UBusAdapter extends IUBus.Stub {
     }
 
     @Override
-    public ParcelableUMessage[] pull(ParcelableUUri uri, int count, Bundle extras, IBinder clientToken) {
+    public ParcelableUMessage[] pull(ParcelableUUri uri, int count, int flags, IBinder clientToken) {
         try {
-            final ParcelableUMessage[] messages = mUBus.pull(uri.getWrapped(), count, extras, clientToken).stream()
+            final ParcelableUMessage[] messages = mUBus.pull(uri.getWrapped(), count, flags, clientToken).stream()
                     .map(ParcelableUMessage::new)
                     .toArray(ParcelableUMessage[]::new);
             return messages.length > 0 ? messages : null;
@@ -89,18 +88,18 @@ public class UBusAdapter extends IUBus.Stub {
     }
 
     @Override
-    public ParcelableUStatus enableDispatching(ParcelableUUri uri, Bundle extras, IBinder clientToken) {
+    public ParcelableUStatus enableDispatching(ParcelableUUri uri, int flags, IBinder clientToken) {
         try {
-            return new ParcelableUStatus(mUBus.enableDispatching(uri.getWrapped(), extras, clientToken));
+            return new ParcelableUStatus(mUBus.enableDispatching(uri.getWrapped(), flags, clientToken));
         } catch (Exception e) {
             return new ParcelableUStatus(toStatus(e));
         }
     }
 
     @Override
-    public ParcelableUStatus disableDispatching(ParcelableUUri uri, Bundle extras, IBinder clientToken) {
+    public ParcelableUStatus disableDispatching(ParcelableUUri uri, int flags, IBinder clientToken) {
         try {
-            return new ParcelableUStatus(mUBus.disableDispatching(uri.getWrapped(), extras, clientToken));
+            return new ParcelableUStatus(mUBus.disableDispatching(uri.getWrapped(), flags, clientToken));
         } catch (Exception e) {
             return new ParcelableUStatus(toStatus(e));
         }

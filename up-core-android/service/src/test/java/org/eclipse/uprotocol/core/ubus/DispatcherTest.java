@@ -26,7 +26,7 @@ package org.eclipse.uprotocol.core.ubus;
 import static org.eclipse.uprotocol.common.util.log.Formatter.stringify;
 import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.replaceSink;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.addAuthority;
-import static org.eclipse.uprotocol.core.ubus.UBus.EXTRA_BLOCK_AUTO_FETCH;
+import static org.eclipse.uprotocol.core.ubus.UBusManager.FLAG_BLOCK_AUTO_FETCH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -46,7 +46,6 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -140,7 +139,7 @@ public class DispatcherTest extends TestBase {
         if (shouldSubscribe) {
             injectSubscription(topic, client.getUri());
         }
-        assertStatus(UCode.OK, mDispatcher.enableDispatching(topic, null, client));
+        assertStatus(UCode.OK, mDispatcher.enableDispatching(topic, 0, client));
         return client;
     }
 
@@ -286,7 +285,7 @@ public class DispatcherTest extends TestBase {
 
     @Test
     public void testOnClientUnregistered() {
-        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, null, mClient));
+        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, 0, mClient));
         assertTrue(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
         mClientManager.unregisterClient(mClient.getToken());
         assertFalse(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
@@ -331,20 +330,13 @@ public class DispatcherTest extends TestBase {
 
     @Test
     public void testShouldAutoFetch() {
-        assertTrue(Dispatcher.shouldAutoFetch(null));
-        Bundle extras = new Bundle();
-        assertTrue(Dispatcher.shouldAutoFetch(extras));
-        extras.putString(EXTRA_BLOCK_AUTO_FETCH, "test");
-        assertTrue(Dispatcher.shouldAutoFetch(extras));
-        extras.putBoolean(EXTRA_BLOCK_AUTO_FETCH, false);
-        assertTrue(Dispatcher.shouldAutoFetch(extras));
-        extras.putBoolean(EXTRA_BLOCK_AUTO_FETCH, true);
-        assertFalse(Dispatcher.shouldAutoFetch(extras));
+        assertFalse(Dispatcher.shouldAutoFetch(FLAG_BLOCK_AUTO_FETCH));
+        assertTrue(Dispatcher.shouldAutoFetch(~FLAG_BLOCK_AUTO_FETCH));
     }
 
     @Test
     public void testEnableDispatching() {
-        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, null, mClient));
+        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, 0, mClient));
         assertTrue(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
     }
 
@@ -352,14 +344,14 @@ public class DispatcherTest extends TestBase {
     public void testEnableDispatchingAlreadyEnabled() {
         setLogLevel(Log.INFO);
         testEnableDispatching();
-        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, null, mClient));
+        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, 0, mClient));
         assertTrue(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
     }
 
     @Test
     public void testEnableDispatchingAutoFetch() {
         injectSubscription(RESOURCE_URI, mClient.getUri());
-        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, null, mClient));
+        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, 0, mClient));
         assertTrue(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
         verify(mUTwin, timeout(DELAY_MS).times(1)).getMessage(RESOURCE_URI);
     }
@@ -367,30 +359,28 @@ public class DispatcherTest extends TestBase {
     @Test
     public void testEnableDispatchingAutoFetchBlocked() {
         injectSubscription(RESOURCE_URI, mClient.getUri());
-        Bundle extras = new Bundle();
-        extras.putBoolean(EXTRA_BLOCK_AUTO_FETCH, true);
-        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, extras, mClient));
+        assertStatus(UCode.OK, mDispatcher.enableDispatching(RESOURCE_URI, FLAG_BLOCK_AUTO_FETCH, mClient));
         assertTrue(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
         verify(mUTwin, never()).getMessage(RESOURCE_URI);
     }
 
     @Test
     public void testEnableDispatchingForServer() {
-        mDispatcher.enableDispatching(METHOD_URI, null, mServer);
+        mDispatcher.enableDispatching(METHOD_URI, 0, mServer);
         verify(mRpcHandler, times(1)).registerServer(METHOD_URI, mServer);
     }
 
     @Test
     @SuppressWarnings("DataFlowIssue")
     public void testEnableDispatchingNegative() {
-        assertThrows(NullPointerException.class, () -> mDispatcher.enableDispatching(null, null, mClient));
-        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.enableDispatching(EMPTY_URI, null, mClient));
-        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.enableDispatching(RESOURCE_URI,  null,null));
+        assertThrows(NullPointerException.class, () -> mDispatcher.enableDispatching(null, 0, mClient));
+        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.enableDispatching(EMPTY_URI, 0, mClient));
+        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.enableDispatching(RESOURCE_URI,  0,null));
     }
 
     @Test
     public void testDisableDispatching() {
-        assertStatus(UCode.OK, mDispatcher.disableDispatching(RESOURCE_URI, null, mClient));
+        assertStatus(UCode.OK, mDispatcher.disableDispatching(RESOURCE_URI, 0, mClient));
         assertFalse(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
     }
 
@@ -398,22 +388,22 @@ public class DispatcherTest extends TestBase {
     public void testDisableDispatchingAlreadyDisabled() {
         setLogLevel(Log.INFO);
         testDisableDispatching();
-        assertStatus(UCode.OK, mDispatcher.disableDispatching(RESOURCE_URI, null, mClient));
+        assertStatus(UCode.OK, mDispatcher.disableDispatching(RESOURCE_URI, 0, mClient));
         assertFalse(mDispatcher.getLinkedClients(RESOURCE_URI).contains(mClient));
     }
 
     @Test
     public void testDisableDispatchingForServer() {
-        mDispatcher.disableDispatching(METHOD_URI, null, mServer);
+        mDispatcher.disableDispatching(METHOD_URI, 0, mServer);
         verify(mRpcHandler, times(1)).unregisterServer(METHOD_URI, mServer);
     }
 
     @Test
     @SuppressWarnings("DataFlowIssue")
     public void testDisableDispatchingNegative() {
-        assertThrows(NullPointerException.class, () -> mDispatcher.disableDispatching(null, null, mClient));
-        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.disableDispatching(EMPTY_URI, null, mClient));
-        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.disableDispatching(RESOURCE_URI, null, null));
+        assertThrows(NullPointerException.class, () -> mDispatcher.disableDispatching(null, 0, mClient));
+        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.disableDispatching(EMPTY_URI, 0, mClient));
+        assertStatus(UCode.INVALID_ARGUMENT, mDispatcher.disableDispatching(RESOURCE_URI, 0, null));
     }
 
     @Test
@@ -646,7 +636,7 @@ public class DispatcherTest extends TestBase {
         mSubscriptionCache.addTopic(topic, SERVER_URI);
         mSubscriptionCache.addSubscriber(topic, mClient.getUri());
         mUTwin.addMessage(buildPublishMessage(topic));
-        mDispatcher.enableDispatching(topic, null, mClient);
+        mDispatcher.enableDispatching(topic, 0, mClient);
 
         final String output = dump();
         assertTrue(output.contains(stringify(topic)));
@@ -662,9 +652,9 @@ public class DispatcherTest extends TestBase {
         mSubscriptionCache.addTopic(topic2, SERVER_URI);
         mSubscriptionCache.addSubscriber(topic1, client1.getUri());
 
-        mDispatcher.enableDispatching(topic1, null, client1);
-        mDispatcher.enableDispatching(topic1, null, client2);
-        mDispatcher.enableDispatching(topic2, null, client2);
+        mDispatcher.enableDispatching(topic1, 0, client1);
+        mDispatcher.enableDispatching(topic1, 0, client2);
+        mDispatcher.enableDispatching(topic2, 0, client2);
 
         final String output = dump("-t", stringify(topic1));
         assertTrue(output.contains(stringify(topic1)));
@@ -681,9 +671,9 @@ public class DispatcherTest extends TestBase {
         mSubscriptionCache.addTopic(topic2, SERVER_URI);
         mSubscriptionCache.addSubscriber(topic1, client1.getUri());
 
-        mDispatcher.enableDispatching(topic1, null, client1);
-        mDispatcher.enableDispatching(topic1, null, client2);
-        mDispatcher.enableDispatching(topic2, null, client2);
+        mDispatcher.enableDispatching(topic1, 0, client1);
+        mDispatcher.enableDispatching(topic1, 0, client2);
+        mDispatcher.enableDispatching(topic2, 0, client2);
 
         final String output = dump("-t");
         assertTrue(output.contains(stringify(topic1)));
@@ -696,7 +686,7 @@ public class DispatcherTest extends TestBase {
         mSubscriptionCache.addTopic(topic, SERVER_URI);
         mSubscriptionCache.addSubscriber(topic, mClient.getUri());
         mUTwin.addMessage(buildPublishMessage(topic));
-        mDispatcher.enableDispatching(topic, null, mClient);
+        mDispatcher.enableDispatching(topic, 0, mClient);
 
         final String output = dump("-s");
         assertFalse(output.contains(stringify(topic)));

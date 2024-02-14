@@ -37,6 +37,7 @@ import static org.eclipse.uprotocol.core.usubscription.USubscription.Method.UNSU
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
@@ -89,7 +90,7 @@ public class USubscriptionTest extends SubscriptionTestBase {
         mUBus = mUCore.getUBus();
         mUSubscription.registerListener(mSubscriptionListener);
         when(mUCore.getUBus().registerClient(any(), any(), any())).thenReturn(STATUS_OK);
-        when(mUCore.getUBus().enableDispatching(any(), any(), any())).thenReturn(STATUS_OK);
+        when(mUCore.getUBus().enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_OK);
         mUSubscription.init(mUCore);
         mUSubscription.startup();
     }
@@ -98,21 +99,21 @@ public class USubscriptionTest extends SubscriptionTestBase {
     public void testInit() {
         verify(mSubscriptionHandler, times(1)).init(any());
         verify(mUBus, times(1)).registerClient(eq(USubscription.SERVICE), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(SUBSCRIBE.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(UNSUBSCRIBE.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(CREATE_TOPIC.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(DEPRECATE_TOPIC.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(FETCH_SUBSCRIPTIONS.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(FETCH_SUBSCRIBERS.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(REGISTER_FOR_NOTIFICATIONS.localUri()), any(), any());
-        verify(mUBus, times(1)).enableDispatching(eq(UNREGISTER_FOR_NOTIFICATIONS.localUri()), any(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(SUBSCRIBE.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(UNSUBSCRIBE.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(CREATE_TOPIC.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(DEPRECATE_TOPIC.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(FETCH_SUBSCRIPTIONS.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(FETCH_SUBSCRIBERS.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(REGISTER_FOR_NOTIFICATIONS.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).enableDispatching(eq(UNREGISTER_FOR_NOTIFICATIONS.localUri()), anyInt(), any());
     }
 
     @Test
     public void testRegisterRpcListenerNotOK() {
-        when(mUBus.enableDispatching(any(), any(), any())).thenReturn(buildStatus(UCode.INVALID_ARGUMENT));
+        when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(buildStatus(UCode.INVALID_ARGUMENT));
         mUSubscription.init(mUCore);
-        verify(mUBus, atLeast(8)).enableDispatching(any(), any(), any());
+        verify(mUBus, atLeast(8)).enableDispatching(any(), anyInt(), any());
     }
 
     @Test
@@ -329,7 +330,7 @@ public class USubscriptionTest extends SubscriptionTestBase {
     public void testShutdownTimeout() {
         mUSubscription.getExecutor().execute(() -> sleep(200));
         mUSubscription.shutdown();
-        verify(mUBus, atLeastOnce()).disableDispatching(any(), any(), any());
+        verify(mUBus, atLeastOnce()).disableDispatching(any(), anyInt(), any());
     }
 
     @Test
@@ -338,20 +339,20 @@ public class USubscriptionTest extends SubscriptionTestBase {
         final Thread thread = new Thread(() -> mUSubscription.shutdown());
         thread.start();
         thread.interrupt();
-        verify(mUBus, times(0)).disableDispatching(any(), any(), any());
+        verify(mUBus, times(0)).disableDispatching(any(), anyInt(), any());
     }
 
     @After
     public void testShutdown() {
         mUSubscription.unregisterListener(mSubscriptionListener);
         mUSubscription.shutdown();
-        verify(mUBus, times(1)).disableDispatching(eq(SUBSCRIBE.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(UNSUBSCRIBE.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(CREATE_TOPIC.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(DEPRECATE_TOPIC.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(FETCH_SUBSCRIPTIONS.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(FETCH_SUBSCRIBERS.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(REGISTER_FOR_NOTIFICATIONS.localUri()), any(), any());
-        verify(mUBus, times(1)).disableDispatching(eq(UNREGISTER_FOR_NOTIFICATIONS.localUri()), any(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(SUBSCRIBE.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(UNSUBSCRIBE.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(CREATE_TOPIC.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(DEPRECATE_TOPIC.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(FETCH_SUBSCRIPTIONS.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(FETCH_SUBSCRIBERS.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(REGISTER_FOR_NOTIFICATIONS.localUri()), anyInt(), any());
+        verify(mUBus, times(1)).disableDispatching(eq(UNREGISTER_FOR_NOTIFICATIONS.localUri()), anyInt(), any());
     }
 }

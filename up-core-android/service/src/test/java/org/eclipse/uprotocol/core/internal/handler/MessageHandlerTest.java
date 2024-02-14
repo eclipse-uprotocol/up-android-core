@@ -30,6 +30,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -76,8 +77,8 @@ public class MessageHandlerTest extends TestBase {
     @Before
     public void setUp() {
         mMessageHandler = new MessageHandler(mUBus, CLIENT, mClientToken);
-        when(mUBus.enableDispatching(any(), any(), any())).thenReturn(STATUS_OK);
-        when(mUBus.disableDispatching(any(), any(), any())).thenReturn(STATUS_OK);
+        when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_OK);
+        when(mUBus.disableDispatching(any(), anyInt(), any())).thenReturn(STATUS_OK);
     }
 
     @Test
@@ -92,7 +93,7 @@ public class MessageHandlerTest extends TestBase {
 
     @Test
     public void testRegisterListenerRejected() {
-        when(mUBus.enableDispatching(any(), any(), any())).thenReturn(STATUS_ERROR);
+        when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_ERROR);
         assertFalse(mMessageHandler.registerListener(RESOURCE_URI, mListener1));
     }
 
@@ -127,7 +128,7 @@ public class MessageHandlerTest extends TestBase {
 
     @Test
     public void testRegisterRpcListenerRejected() {
-        when(mUBus.enableDispatching(any(), any(), any())).thenReturn(STATUS_ERROR);
+        when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_ERROR);
         assertFalse(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener1));
     }
 

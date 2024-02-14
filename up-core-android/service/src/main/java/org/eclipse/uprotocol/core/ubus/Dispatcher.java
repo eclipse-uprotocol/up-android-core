@@ -40,12 +40,11 @@ import static org.eclipse.uprotocol.core.internal.util.UUriUtils.isRemoteUri;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.isSameClient;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.toUri;
 import static org.eclipse.uprotocol.core.internal.util.log.FormatterExt.stringify;
-import static org.eclipse.uprotocol.core.ubus.UBus.EXTRA_BLOCK_AUTO_FETCH;
+import static org.eclipse.uprotocol.core.ubus.UBusManager.FLAG_BLOCK_AUTO_FETCH;
 import static org.eclipse.uprotocol.uri.validator.UriValidator.isEmpty;
 
 import static java.util.Collections.emptyList;
 
-import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -190,34 +189,34 @@ public class Dispatcher extends UBus.Component {
         return emptyList();
     }
 
-    public @NonNull UStatus enableDispatching(@NonNull UUri uri, Bundle extras, @NonNull Client client) {
+    public @NonNull UStatus enableDispatching(@NonNull UUri uri, int flags, @NonNull Client client) {
         if (isMethodUri(uri)) {
             return mRpcHandler.registerServer(uri, client);
         } else {
-            return enableGenericDispatching(uri, extras, client);
+            return enableGenericDispatching(uri, flags, client);
         }
     }
 
-    public @NonNull UStatus disableDispatching(@NonNull UUri uri, Bundle extras, @NonNull Client client) {
+    public @NonNull UStatus disableDispatching(@NonNull UUri uri, int flags, @NonNull Client client) {
         if (isMethodUri(uri)) {
             return mRpcHandler.unregisterServer(uri, client);
         } else {
-            return disableGenericDispatching(uri, extras, client);
+            return disableGenericDispatching(uri, flags, client);
         }
     }
 
-    static boolean shouldAutoFetch(Bundle extras) {
-        return (extras == null) || !extras.getBoolean(EXTRA_BLOCK_AUTO_FETCH, false);
+    static boolean shouldAutoFetch(int flags) {
+        return (flags & FLAG_BLOCK_AUTO_FETCH) == 0;
     }
 
-    private @NonNull UStatus enableGenericDispatching(@NonNull UUri topic, Bundle extras, @NonNull Client client) {
+    private @NonNull UStatus enableGenericDispatching(@NonNull UUri topic, int flags, @NonNull Client client) {
         try {
             checkTopicUriValid(topic);
             mLinkedClients.linkToDispatch(topic, client);
             if (VERBOSE) {
                 logStatus(Log.VERBOSE, "enableDispatching", STATUS_OK, Key.URI, stringify(topic), Key.CLIENT, client);
             }
-            if (shouldAutoFetch(extras) && mSubscriptionCache.isTopicSubscribed(topic, client.getUri())) {
+            if (shouldAutoFetch(flags) && mSubscriptionCache.isTopicSubscribed(topic, client.getUri())) {
                 dispatchToAsync(mUTwin.getMessage(topic), client);
             }
             return STATUS_OK;
@@ -226,7 +225,7 @@ public class Dispatcher extends UBus.Component {
         }
     }
 
-    private @NonNull UStatus disableGenericDispatching(@NonNull UUri topic, Bundle ignored, @NonNull Client client) {
+    private @NonNull UStatus disableGenericDispatching(@NonNull UUri topic, int ignored, @NonNull Client client) {
         try {
             checkTopicUriValid(topic);
             mLinkedClients.unlinkFromDispatch(topic, client);

@@ -27,9 +27,8 @@ import static org.eclipse.uprotocol.common.util.UStatusUtils.isOk;
 import static org.eclipse.uprotocol.common.util.UStatusUtils.toStatus;
 import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildFailedResponseMessage;
 import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildResponseMessage;
-import static org.eclipse.uprotocol.core.ubus.UBus.EXTRA_BLOCK_AUTO_FETCH;
+import static org.eclipse.uprotocol.core.ubus.UBusManager.FLAG_BLOCK_AUTO_FETCH;
 
-import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -79,9 +78,7 @@ public class MessageHandler implements UListener {
         final Set<UListener> registeredListeners = mListeners.compute(uri, (it, listeners) -> {
             if (listeners == null) {
                 listeners = ConcurrentHashMap.newKeySet();
-                final Bundle extras = new Bundle();
-                extras.putBoolean(EXTRA_BLOCK_AUTO_FETCH, true);
-                final UStatus status = mUBus.enableDispatching(uri, extras, mClientToken);
+                final UStatus status = mUBus.enableDispatching(uri, FLAG_BLOCK_AUTO_FETCH, mClientToken);
                 if (!isOk(status)) {
                     return null;
                 }
@@ -97,7 +94,7 @@ public class MessageHandler implements UListener {
         mListeners.computeIfPresent(uri, (it, listeners) -> {
             wrapper.removed = listeners.remove(listener);
             if (listeners.isEmpty()) {
-                mUBus.disableDispatching(uri, null, mClientToken);
+                mUBus.disableDispatching(uri, 0, mClientToken);
                 return null;
             }
             return listeners;
@@ -107,7 +104,7 @@ public class MessageHandler implements UListener {
 
     public boolean registerRpcListener(@NonNull UUri uri, @NonNull URpcListener listener) {
         final URpcListener registeredListener = mRequestListeners.computeIfAbsent(uri, it -> {
-            final UStatus status = mUBus.enableDispatching(uri, null, mClientToken);
+            final UStatus status = mUBus.enableDispatching(uri, 0, mClientToken);
             return isOk(status) ? listener : null;
         });
         return (registeredListener == listener);
@@ -119,7 +116,7 @@ public class MessageHandler implements UListener {
             if (registeredListener != listener) {
                 return registeredListener;
             }
-            mUBus.disableDispatching(uri, null, mClientToken);
+            mUBus.disableDispatching(uri, 0, mClientToken);
             wrapper.removed = true;
             return null;
         });
