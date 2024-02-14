@@ -1,23 +1,27 @@
-= Android uPlatform Implementation
+= Android uCore Service Implementation
+:toc:
+:toclevels: 3
+:sectnums:
+:source-highlighter: coderay
 
 == Overview
-Android uPlatform implementation using the Binder uTransport.
+This project includes the Android Binder implementation of uBus, serving as the https://github.com/eclipse-uprotocol/up-spec/blob/main/up-l2/dispatchers/README.adoc[Communication Layer] for uEs that utilize the https://github.com/eclipse-uprotocol/up-client-android-java/blob/main/README.adoc[Android uPClient], as well as implementations of the https://github.com/eclipse-uprotocol/up-spec/tree/main/up-l3/usubscription/v3/README.adoc[uSubscription] and https://github.com/eclipse-uprotocol/up-spec/tree/main/up-l3/utwin/v1/README.adoc[uTwin] core services.
 
-.Projects
-[width=100%",cols="30%,70%"]
-|===
-|Name |Description
+== Getting Started
+=== Building the Project
+The Android Gradle Plugin provides several standard tasks that are commonly used in Android projects. To view the complete list, you can use the following command:
 
-|link:up-core-android/README.adoc[*uCore Service*]
-|Android service that includes uBus, uSubscription and uTwin core services
+[,bash]
+----
+gradlew tasks
+----
 
-|link:up-discovery-android/README.adoc[*uDiscovery Service*]
-|Android service that contains uDiscovery core service
+Assembling _UCoreService.apk_ is as simple as:
 
-|link:up-example-android/README.adoc[*Example*]
-|Android applications demonstrating implementations of uService and uClient entities
+[,bash]
+----
+gradlew assembleRelease
+----
 
-|link:up-simulator-proxy/README.adoc[*upSimulator Proxy*]
-|Android application acting as a proxy to the up-simulator
-
-|===
+=== Installing the Build
+Please follow link:testing.adoc#installing-a-privileged-application[instructions] to install _UCoreService.apk_ as a privileged application.
