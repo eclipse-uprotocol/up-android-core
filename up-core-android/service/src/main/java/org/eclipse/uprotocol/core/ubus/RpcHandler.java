@@ -204,7 +204,7 @@ class RpcHandler extends UBus.Component {
         final UUri methodUri = requestMessage.getAttributes().getSink();
         final long timeout = getRemainingTime(requestMessage).orElse(0L);
         try {
-            checkAuthority(requestMessage.getSource(), client);
+            checkAuthority(requestMessage.getAttributes().getSource(), client);
             checkArgument(timeout > 0, UCode.DEADLINE_EXCEEDED, "Message expired");
 
             final Request request = mRequests.compute(requestId, (key, currentRequest) -> {
@@ -245,7 +245,7 @@ class RpcHandler extends UBus.Component {
     @SuppressWarnings("DataFlowIssue")
     public @NonNull UStatus handleResponseMessage(@NonNull UMessage responseMessage, @NonNull Client server) {
         final UUID requestId = responseMessage.getAttributes().getReqid();
-        final UUri methodUri = responseMessage.getSource();
+        final UUri methodUri = responseMessage.getAttributes().getSource();
         try {
             checkAuthority(methodUri, server);
             checkArgument(!isExpired(responseMessage), UCode.DEADLINE_EXCEEDED, "Message expired");

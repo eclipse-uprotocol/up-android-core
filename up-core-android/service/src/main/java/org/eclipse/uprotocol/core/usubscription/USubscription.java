@@ -245,8 +245,7 @@ public class USubscription extends UCore.Component {
 
     protected void sendSubscriptionUpdate(@NonNull UUri sink, @NonNull Update updatedSubscription) {
         final UMessage message = UMessage.newBuilder()
-                .setSource(TOPIC_SUBSCRIPTION_UPDATE)
-                .setAttributes(UAttributesBuilder.notification(UPriority.UPRIORITY_CS0, sink).build())
+                .setAttributes(UAttributesBuilder.notification(TOPIC_SUBSCRIPTION_UPDATE, sink, UPriority.UPRIORITY_CS0).build())
                 .setPayload(packToAny(updatedSubscription))
                 .build();
         mUBus.send(message, mClientToken);

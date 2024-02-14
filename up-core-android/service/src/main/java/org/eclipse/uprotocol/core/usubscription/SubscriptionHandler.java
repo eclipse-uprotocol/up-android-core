@@ -194,7 +194,7 @@ public class SubscriptionHandler {
             final CreateTopicRequest request = unpack(payload, CreateTopicRequest.class)
                     .orElseThrow(() -> new UStatusException(UCode.INVALID_ARGUMENT, UNEXPECTED_PAYLOAD));
             final UUri topic = request.getTopic();
-            final UUri publisher = getClientUri(message.getSource());
+            final UUri publisher = getClientUri(message.getAttributes().getSource());
 
             checkArgument(!publisher.hasAuthority() && !topic.hasAuthority(),
                     UCode.PERMISSION_DENIED,
@@ -246,7 +246,7 @@ public class SubscriptionHandler {
             final DeprecateTopicRequest request = unpack(payload, DeprecateTopicRequest.class)
                     .orElseThrow(() -> new UStatusException(UCode.INVALID_ARGUMENT, UNEXPECTED_PAYLOAD));
             final UUri topic = request.getTopic();
-            final UUri publisher = getClientUri(message.getSource());
+            final UUri publisher = getClientUri(message.getAttributes().getSource());
 
             checkArgument(!publisher.hasAuthority() && !topic.hasAuthority(),
                     UCode.PERMISSION_DENIED,
@@ -293,7 +293,7 @@ public class SubscriptionHandler {
             final UPayload payload = message.getPayload();
             final SubscriptionRequest request = unpack(payload, SubscriptionRequest.class)
                     .orElseThrow(() -> new UStatusException(UCode.INVALID_ARGUMENT, UNEXPECTED_PAYLOAD));
-            final UUri source = message.getSource();
+            final UUri source = message.getAttributes().getSource();
 
             final RequestData data = buildRequestData(request, source.hasAuthority());
             checkSameEntity(source, data.subscriber);
@@ -407,7 +407,7 @@ public class SubscriptionHandler {
             final UnsubscribeRequest request = unpack(payload, UnsubscribeRequest.class)
                     .orElseThrow(() -> new UStatusException(UCode.INVALID_ARGUMENT, UNEXPECTED_PAYLOAD));
 
-            final UUri source = message.getSource();
+            final UUri source = message.getAttributes().getSource();
 
             final RequestData data = buildRequestData(request, source.hasAuthority());
             checkSameEntity(source, data.subscriber);
@@ -570,7 +570,7 @@ public class SubscriptionHandler {
             final NotificationsRequest request = unpack(payload, NotificationsRequest.class)
                     .orElseThrow(() -> new UStatusException(UCode.INVALID_ARGUMENT, UNEXPECTED_PAYLOAD));
 
-            final UUri responseUri = message.getSource();
+            final UUri responseUri = message.getAttributes().getSource();
             final UUri topicUri = request.getTopic();
             final String topic = toUriString(topicUri);
             checkSameEntity(topicUri, responseUri);
@@ -604,7 +604,7 @@ public class SubscriptionHandler {
             final NotificationsRequest request = unpack(payload, NotificationsRequest.class)
                     .orElseThrow(() -> new UStatusException(UCode.INVALID_ARGUMENT, UNEXPECTED_PAYLOAD));
 
-            final UUri responseUri = message.getSource();
+            final UUri responseUri = message.getAttributes().getSource();
             final UUri topicUri = request.getTopic();
             final String topic = toUriString(topicUri);
             checkSameEntity(topicUri, responseUri);

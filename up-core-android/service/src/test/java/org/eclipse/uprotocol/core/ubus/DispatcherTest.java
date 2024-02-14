@@ -177,11 +177,11 @@ public class DispatcherTest extends TestBase {
     }
 
     private void verifyMessageCached(@NonNull UMessage message) {
-        assertEquals(message, mUTwin.getMessage(message.getSource()));
+        assertEquals(message, mUTwin.getMessage(message.getAttributes().getSource()));
     }
 
     private void verifyMessageNotCached(@NonNull UMessage message) {
-        final UMessage cachedMessage = mUTwin.getMessage(message.getSource());
+        final UMessage cachedMessage = mUTwin.getMessage(message.getAttributes().getSource());
         if (cachedMessage != null) {
             assertNotEquals(message.getAttributes().getId(), cachedMessage.getAttributes().getId());
         }
@@ -419,7 +419,7 @@ public class DispatcherTest extends TestBase {
     @Test
     public void testDispatchFromUnknownMessage() {
         injectTopic(RESOURCE2_URI, mServer.getUri());
-        final UMessage message = UMessage.newBuilder().setSource(RESOURCE2_URI).build();
+        final UMessage message = UMessage.getDefaultInstance();
         assertStatus(UCode.UNIMPLEMENTED, mDispatcher.dispatchFrom(message, mServer));
         verifyMessageNotCached(message);
     }
@@ -474,7 +474,7 @@ public class DispatcherTest extends TestBase {
         registerReceiver(RESOURCE_URI, mClient, false);
         final UMessage message = buildPublishMessage(RESOURCE_URI);
         assertStatus(UCode.NOT_FOUND, mDispatcher.dispatchFrom(message, mServer));
-        assertNull(mUTwin.getMessage(message.getSource()));
+        assertNull(mUTwin.getMessage(message.getAttributes().getSource()));
         verifyMessageNotReceived(message, mClient);
     }
 

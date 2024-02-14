@@ -379,8 +379,8 @@ public class RpcHandlerTest extends TestBase {
         final UMessage responseMessage = captor.getValue();
         assertNotNull(responseMessage);
         assertEquals(requestMessage.getAttributes().getId(), responseMessage.getAttributes().getReqid());
-        assertEquals(requestMessage.getAttributes().getSink(), responseMessage.getSource());
-        assertEquals(requestMessage.getSource(), responseMessage.getAttributes().getSink());
+        assertEquals(requestMessage.getAttributes().getSink(), responseMessage.getAttributes().getSource());
+        assertEquals(requestMessage.getAttributes().getSource(), responseMessage.getAttributes().getSink());
         assertEquals(UCode.DEADLINE_EXCEEDED_VALUE, responseMessage.getAttributes().getCommstatus());
     }
 

@@ -88,10 +88,9 @@ public class RpcExecutor implements RpcClient, UListener {
     @Override
     public @NonNull CompletionStage<UMessage> invokeMethod(@NonNull UUri methodUri, @NonNull UPayload requestPayload,
             @NonNull CallOptions options) {
-        final UAttributesBuilder builder = UAttributesBuilder.request(REQUEST_PRIORITY, methodUri, options.timeout());
+        final UAttributesBuilder builder = UAttributesBuilder.request(mResponseUri, methodUri, REQUEST_PRIORITY, options.timeout());
         options.token().ifPresent(builder::withToken);
         final UMessage requestMessage = UMessage.newBuilder()
-                .setSource(mResponseUri)
                 .setPayload(requestPayload)
                 .setAttributes(builder.build())
                 .build();
@@ -107,14 +106,6 @@ public class RpcExecutor implements RpcClient, UListener {
             }
         });
         return responseFuture;
-    }
-
-    @Override
-    public void onReceive(@NonNull UUri source, @NonNull UPayload payload, @NonNull UAttributes attributes) {
-        onReceive(UMessage.newBuilder()
-                .setSource(source)
-                .setPayload(payload)
-                .setAttributes(attributes).build());
     }
 
     @Override
@@ -139,11 +130,6 @@ public class RpcExecutor implements RpcClient, UListener {
         public @NonNull CompletionStage<UMessage> invokeMethod(@NonNull UUri methodUri,
                 @NonNull UPayload requestPayload, @NonNull CallOptions options) {
             return CompletableFuture.failedFuture(new UStatusException(UCode.UNIMPLEMENTED, "Dummy implementation"));
-        }
-
-        @Override
-        public void onReceive(@NonNull UUri source, @NonNull UPayload payload, @NonNull UAttributes attributes) {
-            // Dummy implementation
         }
 
         @Override

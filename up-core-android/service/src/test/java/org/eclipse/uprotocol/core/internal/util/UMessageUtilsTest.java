@@ -61,20 +61,7 @@ public class UMessageUtilsTest extends TestBase {
     public void testCheckMessageValidNegative() {
         assertThrowsStatusException(UCode.INVALID_ARGUMENT, () -> UMessageUtils.checkMessageValid(EMPTY_MESSAGE));
         assertThrowsStatusException(UCode.INVALID_ARGUMENT, () ->
-                UMessageUtils.checkMessageValid(UMessage.newBuilder(buildPublishMessage())
-                        .setSource(METHOD_URI)
-                        .build()));
-        assertThrowsStatusException(UCode.INVALID_ARGUMENT, () ->
-                UMessageUtils.checkMessageValid(UMessage.newBuilder(buildRequestMessage())
-                        .setSource(METHOD2_URI)
-                        .build()));
-        assertThrowsStatusException(UCode.INVALID_ARGUMENT, () ->
-                UMessageUtils.checkMessageValid(UMessage.newBuilder(buildResponseMessage(buildRequestMessage()))
-                        .setSource(RESPONSE_URI)
-                        .build()));
-        assertThrowsStatusException(UCode.INVALID_ARGUMENT, () ->
-                UMessageUtils.checkMessageValid(UMessage.newBuilder(EMPTY_MESSAGE)
-                        .setSource(RESPONSE_URI)
+                UMessageUtils.checkMessageValid(UMessage.newBuilder()
                         .setAttributes(UAttributes.newBuilder().setType(UMessageType.UMESSAGE_TYPE_REQUEST))
                         .build()));
     }
@@ -82,9 +69,9 @@ public class UMessageUtilsTest extends TestBase {
     @Test
     public void testReplaceSource() {
         final UMessage message = buildPublishMessage(RESOURCE_URI);
-        assertEquals(RESOURCE_URI, message.getSource());
+        assertEquals(RESOURCE_URI, message.getAttributes().getSource());
         final UMessage newMessage = UMessageUtils.replaceSource(message, RESOURCE2_URI);
-        assertEquals(RESOURCE2_URI, newMessage.getSource());
+        assertEquals(RESOURCE2_URI, newMessage.getAttributes().getSource());
     }
 
     @Test
@@ -189,8 +176,8 @@ public class UMessageUtilsTest extends TestBase {
         final UMessage requestMessage = buildRequestMessage();
         final UMessage responseMessage = UMessageUtils.buildResponseMessage(requestMessage, PAYLOAD);
         assertNotEquals(requestMessage.getAttributes().getId(), responseMessage.getAttributes().getId());
-        assertEquals(requestMessage.getAttributes().getSink(), responseMessage.getSource());
-        assertEquals(requestMessage.getSource(), responseMessage.getAttributes().getSink());
+        assertEquals(requestMessage.getAttributes().getSink(), responseMessage.getAttributes().getSource());
+        assertEquals(requestMessage.getAttributes().getSource(), responseMessage.getAttributes().getSink());
         assertEquals(requestMessage.getAttributes().getId(), responseMessage.getAttributes().getReqid());
         assertEquals(requestMessage.getAttributes().getPriority(), responseMessage.getAttributes().getPriority());
         assertEquals(PAYLOAD, responseMessage.getPayload());
@@ -201,8 +188,8 @@ public class UMessageUtilsTest extends TestBase {
         final UMessage requestMessage = buildRequestMessage();
         final UMessage responseMessage = UMessageUtils.buildFailedResponseMessage(requestMessage, UCode.ABORTED);
         assertNotEquals(requestMessage.getAttributes().getId(), responseMessage.getAttributes().getId());
-        assertEquals(requestMessage.getAttributes().getSink(), responseMessage.getSource());
-        assertEquals(requestMessage.getSource(), responseMessage.getAttributes().getSink());
+        assertEquals(requestMessage.getAttributes().getSink(), responseMessage.getAttributes().getSource());
+        assertEquals(requestMessage.getAttributes().getSource(), responseMessage.getAttributes().getSink());
         assertEquals(requestMessage.getAttributes().getId(), responseMessage.getAttributes().getReqid());
         assertEquals(requestMessage.getAttributes().getPriority(), responseMessage.getAttributes().getPriority());
         assertEquals(UCode.ABORTED.getNumber(), responseMessage.getAttributes().getCommstatus());

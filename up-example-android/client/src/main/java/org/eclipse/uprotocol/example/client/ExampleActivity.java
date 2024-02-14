@@ -59,10 +59,9 @@ import org.eclipse.uprotocol.example.v1.Door;
 import org.eclipse.uprotocol.example.v1.DoorCommand;
 import org.eclipse.uprotocol.example.v1.Example;
 import org.eclipse.uprotocol.transport.UListener;
-import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
-import org.eclipse.uprotocol.v1.UPayload;
+import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UResource;
 import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
@@ -257,11 +256,12 @@ public class ExampleActivity extends AppCompatActivity {
                 });
     }
 
-    private void handleMessage(@NonNull UUri source, @NonNull UPayload payload, @NonNull UAttributes attributes) {
+    private void handleMessage(@NonNull UMessage message) {
+        final UUri source = message.getAttributes().getSource();
         if (TOPIC_DOOR_FRONT_LEFT.equals(source)) {
-            unpack(payload, Door.class).ifPresent(this::updateDoorState);
+            unpack(message.getPayload(), Door.class).ifPresent(this::updateDoorState);
         } else if (TOPIC_SUBSCRIPTION_UPDATE.equals(source)) {
-            unpack(payload, Update.class).ifPresent(update ->
+            unpack(message.getPayload(), Update.class).ifPresent(update ->
                     mLog.i(TAG, join(Key.EVENT, "Subscription changed", Key.TOPIC, stringify(update.getTopic()),
                             Key.STATE, update.getStatus().getState())));
         }

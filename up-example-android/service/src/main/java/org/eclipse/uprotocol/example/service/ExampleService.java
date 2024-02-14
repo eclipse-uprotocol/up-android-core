@@ -195,7 +195,7 @@ public class ExampleService extends Service {
 
     private void publish(@NonNull UMessage message) {
         final UStatus status = mUPClient.send(message);
-        logStatus("publish", status, Key.TOPIC, stringify(message.getSource()));
+        logStatus("publish", status, Key.TOPIC, stringify(message.getAttributes().getSource()));
     }
 
     private void handleRequestMessage(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
@@ -223,12 +223,11 @@ public class ExampleService extends Service {
             // Pretend that all required CAN signals were sent successfully.
             // Simulate a received signal below.
             mExecutor.execute(() -> publish(UMessage.newBuilder()
-                    .setSource(mapDoorTopic(instance))
                     .setPayload(packToAny(Door.newBuilder()
                             .setInstance(instance)
                             .setLocked(locked)
                             .build()))
-                    .setAttributes(UAttributesBuilder.publish(UPriority.UPRIORITY_CS0).build())
+                    .setAttributes(UAttributesBuilder.publish(mapDoorTopic(instance), UPriority.UPRIORITY_CS0).build())
                     .build()));
             status = STATUS_OK;
         } catch (Exception e) {

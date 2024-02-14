@@ -54,7 +54,7 @@ class MessageCache {
 
     public boolean addMessage(@NonNull UMessage message, Consumer<UMessage> onAdded) {
         var wrapper = new Object() { boolean added = false; };
-        mMessages.compute(message.getSource(), (topic, oldMessage) -> {
+        mMessages.compute(message.getAttributes().getSource(), (topic, oldMessage) -> {
             if (oldMessage != null && (oldMessage.getAttributes().getId().equals(message.getAttributes().getId()))) {
                 return oldMessage;
             }
