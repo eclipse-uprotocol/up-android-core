@@ -78,7 +78,7 @@ android {
 
     sourceSets {
         main {
-            jniLibs.srcDirs = []
+            jniLibs.srcDirs = ["src/main/jniLibs"]
         }
         test.assets.srcDirs += files("$projectDir/src/test/".toString())
     }

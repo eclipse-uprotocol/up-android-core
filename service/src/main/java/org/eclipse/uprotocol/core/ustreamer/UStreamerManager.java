@@ -27,6 +27,7 @@ public class UStreamerManager {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.i(TAG, "inside mServiceConnectionCallback onServiceConnected()");
+            Log.d(TAG, UStreamerGlue.hello("hello from rust =)"));
         }
 
         @Override
@@ -59,6 +60,4 @@ public class UStreamerManager {
         mServiceBound = mContext.bindService(intent, mServiceConnectionCallback, BIND_AUTO_CREATE);
         return mServiceBound;
     }
-
-
 }
