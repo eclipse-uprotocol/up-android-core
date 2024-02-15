@@ -39,6 +39,7 @@ import androidx.annotation.VisibleForTesting;
 import org.eclipse.uprotocol.common.util.log.Formatter;
 import org.eclipse.uprotocol.common.util.log.Key;
 import org.eclipse.uprotocol.core.ubus.UBusAdapter;
+import org.eclipse.uprotocol.core.ustreamer.UStreamerManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -47,6 +48,7 @@ public class UCoreService extends Service {
     private static final String TAG = Formatter.tag("core", "UCoreService");
     private UCore mUCore;
     private UBusAdapter mUBusAdapter;
+    private UStreamerManager mUStreamerManager;
 
     public UCoreService() {
         //Nothing to do
@@ -59,6 +61,9 @@ public class UCoreService extends Service {
         mUCore = newUCore(this);
         mUCore.init();
         mUCore.startup();
+
+        mUStreamerManager = new UStreamerManager(this);
+        mUStreamerManager.connect();
     }
 
     @VisibleForTesting
