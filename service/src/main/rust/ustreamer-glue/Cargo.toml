@@ -7,4 +7,8 @@ edition = "2021"
 crate_type = ["cdylib"]
 
 [dependencies]
+binder = { git = "https://github.com/PLeVasseur/binder_rs.git", branch = "main" }
+binder_ndk_sys = { git = "https://github.com/PLeVasseur/binder_rs.git", branch = "main" }
+binder_tokio = { git = "https://github.com/PLeVasseur/binder_rs.git", branch = "main" }
 jni = "0.21.1"
+aidl-rust-codegen = { git = "https://github.com/PLeVasseur/up-client-android-rust.git", branch = "feature/initial_implementation" }

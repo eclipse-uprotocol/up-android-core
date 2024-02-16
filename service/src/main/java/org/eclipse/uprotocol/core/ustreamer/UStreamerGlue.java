@@ -1,9 +1,10 @@
 package org.eclipse.uprotocol.core.ustreamer;
 
+import android.os.IBinder;
+
 public class UStreamerGlue {
-    // This declares that the static `hello` method will be provided
-    // a native library.
-    public static native String hello(String input);
+
+    public static native String forwardJavaBinder(IBinder binder);
 
     static {
         // This actually loads the shared object that we'll be creating.

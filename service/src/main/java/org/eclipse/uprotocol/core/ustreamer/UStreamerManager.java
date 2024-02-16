@@ -27,7 +27,7 @@ public class UStreamerManager {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.i(TAG, "inside mServiceConnectionCallback onServiceConnected()");
-            Log.d(TAG, UStreamerGlue.hello("hello from rust =)"));
+            Log.d(TAG, UStreamerGlue.forwardJavaBinder(iBinder));
         }
 
         @Override
