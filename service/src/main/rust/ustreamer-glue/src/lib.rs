@@ -21,7 +21,7 @@ use aidl_rust_codegen::binder_impls::IUBus::IUBus;
 use aidl_rust_codegen::binder_impls::IUListener::{IUListener, BnUListener};
 use aidl_rust_codegen::parcelable_stubs::*;
 
-use up_rust::uprotocol::UEntity;
+use up_rust::uprotocol::{UAuthority, UEntity, UResource, UUri};
 use protobuf::Message;
 
 use std::any::type_name;
@@ -102,9 +102,35 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
     let uentity_size = format!("uentity_size: {}", size);
     let uentity_bytes = format!("bytes: {:?}", bytes);
 
-    let ustatus = ubus.registerClient(&package_name, &uentity.into(), &client_token, my_flags, &my_iulistener_binder);
+    let ustatus_registerClient = ubus.registerClient(&package_name, &uentity.into(), &client_token, my_flags, &my_iulistener_binder);
 
-    let ustatus_string = format!("ustatus: {:?}", ustatus);
+    let ustatus_registerClient_string = format!("ustatus_registerClient: {:?}", ustatus_registerClient);
+
+    let good_uuri = UUri {
+        entity: Some(UEntity {
+            name: "topic_to_subscribe_to".to_string(),
+            ..Default::default()
+        }).into(),
+        resource: Some(UResource {
+            name: "resource_i_want".to_string(),
+            ..Default::default()
+        }).into(),
+        ..Default::default()
+    };
+
+    let bad_uuri = UUri {
+        entity: Some(UEntity {
+            name: "topic_to_subscribe_to".to_string(),
+            ..Default::default()
+        }).into(),
+        ..Default::default()
+    };
+
+    let ustatus_enableDispatching_success = ubus.enableDispatching(&good_uuri.into(), my_flags, &client_token);
+    let ustatus_enableDispatching_success_string = format!("ustatus_enableDispatching_success: {:?}", ustatus_enableDispatching_success);
+
+    let ustatus_enableDispatching_failure = ubus.enableDispatching(&bad_uuri.into(), my_flags, &client_token);
+    let ustatus_enableDispatching_failure_string = format!("ustatus_enableDispatching_failure: {:?}", ustatus_enableDispatching_failure);
 
     let empty_string = "";
     let status_strings = vec![empty_string,
@@ -115,7 +141,9 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
                               &uentity_computed_size,
                               &uentity_size,
                               &uentity_bytes,
-                              &ustatus_string];
+                              &ustatus_registerClient_string,
+                              &ustatus_enableDispatching_success_string,
+                              &ustatus_enableDispatching_failure_string];
     let status_string = status_strings.join("\n");
 
     // Then we have to create a new Java string to return. Again, more info
