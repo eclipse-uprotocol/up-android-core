@@ -40,5 +40,12 @@
                 <action android:name="uprotocol.action.BIND_UBUS"/>
             </intent-filter>
         </service>
+
+        <meta-data
+            android:name="uprotocol.entity.name"
+            android:value="ustreamer_glue" />
+        <meta-data
+            android:name="uprotocol.entity.version"
+            android:value="1" />
     </application>
 </manifest>
