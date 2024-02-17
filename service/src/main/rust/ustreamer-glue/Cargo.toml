@@ -8,9 +8,11 @@ crate_type = ["cdylib"]
 
 [dependencies]
 aidl-rust-codegen = { git = "https://github.com/PLeVasseur/up-client-android-rust.git", branch = "feature/initial_implementation" }
+async-std = "1.12.0"
 binder = { git = "https://github.com/PLeVasseur/binder_rs.git", branch = "main" }
 binder_ndk_sys = { git = "https://github.com/PLeVasseur/binder_rs.git", branch = "main" }
 binder_tokio = { git = "https://github.com/PLeVasseur/binder_rs.git", branch = "main" }
 jni = "0.21.1"
+once_cell = "1.19.0"
 protobuf = { version = "3.3" }
 up-rust = { git = "https://github.com/eclipse-uprotocol/up-rust", branch = "main" }
