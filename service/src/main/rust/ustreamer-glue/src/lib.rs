@@ -14,14 +14,31 @@ use jni::sys::{jstring, jobject};
 
 use binder_ndk_sys::AIBinder;
 use binder::unstable_api::new_spibinder;
-use binder::{FromIBinder, Strong};
+use binder::{BinderFeatures, FromIBinder, Interface, Strong};
+use binder::binder_impl::Binder;
 
 use aidl_rust_codegen::binder_impls::IUBus::IUBus;
-use aidl_rust_codegen::binder_impls::IUListener::IUListener;
-use aidl_rust_codegen::parcelable_stubs::{ParcelableUEntity, ParcelableUStatus, ParcelableUUri, ParcelableUMessage};
+use aidl_rust_codegen::binder_impls::IUListener::{IUListener, BnUListener};
+use aidl_rust_codegen::parcelable_stubs::*;
 
-struct UStreamerGlue {
+use up_rust::uprotocol::UEntity;
+use protobuf::Message;
 
+use std::any::type_name;
+
+fn type_of<T>(_: &T) -> &'static str {
+    type_name::<T>()
+}
+
+pub struct MyIUListener;
+
+impl Interface for MyIUListener {}
+
+impl IUListener for MyIUListener {
+    fn onReceive(&self, event: &ParcelableUMessage) -> binder::Result<()> {
+        println!("received ParcelableUMessage: {:?}", event);
+        Ok(())
+    }
 }
 
 // This keeps Rust from "mangling" the name and making it unique for this
@@ -61,8 +78,40 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
         format!("into_interface to ubus succeeded: {:?}", &ubus)
     };
 
+    let ubus = ubus.unwrap();
+
+    let type_of_ubus = type_of(&ubus);
+
+    let package_name = "org.eclipse.uprotocol.core.ustreamer";
+    let uentity = UEntity {
+        name: "ustreamer_glue".to_string(),
+        version_major: Some(1),
+        ..Default::default()
+    };
+    let my_flags: i32 = 0;
+    let client_token = Binder::new(()).as_binder();
+    let my_iulistener = MyIUListener;
+    let my_iulistener_binder = BnUListener::new_binder(my_iulistener, BinderFeatures::default());
+
+    let bytes = uentity.write_to_bytes().unwrap();
+    let size = bytes.len() as i32;
+
+    let uentity_size = format!("uentity_size: {}", size);
+    let uentity_bytes = format!("bytes: {:?}", bytes);
+
+    let ustatus = ubus.registerClient(&package_name, &uentity.into(), &client_token, my_flags, &my_iulistener_binder);
+
+    let ustatus_string = format!("ustatus: {:?}", ustatus);
+
     let empty_string = "";
-    let status_strings = vec![empty_string, spibinder_success, remote_service, &into_interface_success];
+    let status_strings = vec![empty_string,
+                              spibinder_success,
+                              remote_service,
+                              &into_interface_success,
+                              type_of_ubus,
+                              &uentity_size,
+                              &uentity_bytes,
+                              &ustatus_string];
     let status_string = status_strings.join("\n");
 
     // Then we have to create a new Java string to return. Again, more info
