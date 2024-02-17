@@ -88,6 +88,9 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
         version_major: Some(1),
         ..Default::default()
     };
+
+    let uentity_computed_size = format!("uentity computed size: {}", uentity.compute_size());
+
     let my_flags: i32 = 0;
     let client_token = Binder::new(()).as_binder();
     let my_iulistener = MyIUListener;
@@ -109,6 +112,7 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
                               remote_service,
                               &into_interface_success,
                               type_of_ubus,
+                              &uentity_computed_size,
                               &uentity_size,
                               &uentity_bytes,
                               &ustatus_string];
