@@ -29,7 +29,7 @@ dependencies = [
 [[package]]
 name = "aidl-rust-codegen"
 version = "0.1.5-SNAPSHOT"
-source = "git+https://github.com/PLeVasseur/up-client-android-rust.git?branch=feature/initial_implementation#8cce702c2badc0cc53959a16392ace94781e8bb1"
+source = "git+https://github.com/PLeVasseur/up-client-android-rust.git?branch=feature/initial_implementation#b5123cfd01ea935c8fdb6f3bcd17908a1a7e2bf7"
 dependencies = [
  "android_logger",
  "anyhow",
