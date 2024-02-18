@@ -1,3 +1,10 @@
+#[macro_use] extern crate log;
+
+extern crate android_logger;
+
+use log::LevelFilter;
+use android_logger::Config;
+
 // This is the interface to the JVM that we'll call the majority of our
 // methods on.
 use jni::JNIEnv;
@@ -58,6 +65,10 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
                                                      class: JClass<'local>,
                                                      binder: jobject)
                                                      -> jstring {
+
+    android_logger::init_once(
+            Config::default().with_max_level(LevelFilter::Trace),
+        );
 
     // TODO: Here we'd do the dance of turning a Java Binder object into a strongly typed Rust binder interface
     let aibinder = unsafe { binder_ndk_sys::AIBinder_fromJavaBinder(env.get_raw(), binder) };
@@ -136,15 +147,18 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
     let ustatus_disableDispatching_success = INSTANCE.get().expect("ubus is not initialized").disableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
     let ustatus_disableDispatching_success_string = format!("ustatus_disableDispatching_success: {:?}", ustatus_disableDispatching_success);
 
+    let mut sleep_counter: u64 = 0;
     task::spawn(async move {
         loop {
-            let ustatus_enableDispatchingTask_success = INSTANCE.get().expect("ubus is not initialized").enableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
-            let ustatus_enableDispatchingTask_success_string = format!("ustatus_enableDispatching_success: {:?}", ustatus_enableDispatching_success);
+//             let ustatus_enableDispatchingTask_success = INSTANCE.get().expect("ubus is not initialized").enableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
+//             let ustatus_enableDispatchingTask_success_string = format!("ustatus_enableDispatching_success: {:?}", ustatus_enableDispatching_success);
+//
+//             let ustatus_disableDispatchingTask_success = INSTANCE.get().expect("ubus is not initialized").disableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
+//             let ustatus_disableDispatchingTask_success_string = format!("ustatus_disableDispatching_success: {:?}", ustatus_disableDispatching_success);
 
-            let ustatus_disableDispatchingTask_success = INSTANCE.get().expect("ubus is not initialized").disableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
-            let ustatus_disableDispatchingTask_success_string = format!("ustatus_disableDispatching_success: {:?}", ustatus_disableDispatching_success);
-
+            info!("sleeping for 1 second, sleep_counter: {sleep_counter}");
             task::sleep(Duration::from_millis(100)).await;
+            sleep_counter += 1;
         }
     });
 

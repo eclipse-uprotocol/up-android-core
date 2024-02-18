@@ -29,7 +29,7 @@ dependencies = [
 [[package]]
 name = "aidl-rust-codegen"
 version = "0.1.5-SNAPSHOT"
-source = "git+https://github.com/PLeVasseur/up-client-android-rust.git?branch=feature/initial_implementation#b5123cfd01ea935c8fdb6f3bcd17908a1a7e2bf7"
+source = "git+https://github.com/PLeVasseur/up-client-android-rust.git?branch=feature/initial_implementation#040dd19e5a4f6a24a9be0940cd2dd3f4b9e9f091"
 dependencies = [
  "android_logger",
  "anyhow",
@@ -1803,11 +1803,13 @@ name = "ustreamer-glue"
 version = "0.1.0"
 dependencies = [
  "aidl-rust-codegen",
+ "android_logger",
  "async-std",
  "binder",
  "binder_ndk_sys",
  "binder_tokio",
  "jni",
+ "log",
  "once_cell",
  "protobuf",
  "up-rust",

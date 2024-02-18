@@ -58,6 +58,7 @@ public class UStreamerManager {
         intent.setPackage(mServiceConfig);
         Log.d(TAG, "intent: " + intent);
         mServiceBound = mContext.bindService(intent, mServiceConnectionCallback, BIND_AUTO_CREATE);
+        Log.i(TAG, "Made it back from calling into Rust!");
         return mServiceBound;
     }
 }
