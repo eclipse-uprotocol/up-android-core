@@ -12,7 +12,7 @@ use jni::JNIEnv;
 // These objects are what you should use as arguments to your native
 // function. They carry extra lifetime information to prevent them escaping
 // this context and getting used after being GC'd.
-use jni::objects::{GlobalRef, JClass, JString};
+use jni::objects::{GlobalRef, JClass, JObject, JString};
 
 // This is just a pointer. We'll be returning it from our function. We
 // can't return one of the objects with lifetime information because the
@@ -53,7 +53,10 @@ impl IUListener for MyIUListener {
     }
 }
 
-static INSTANCE: OnceCell<Arc<Strong<dyn IUBus>>> = OnceCell::new();
+// Because we can't allow the JVM to GC the Java Binder object, we need to put it in a GlobalRef and keep it around
+static JAVA_BINDER_INSTANCE: OnceCell<Arc<GlobalRef>> = OnceCell::new();
+// The IUBus we'll keep around so we can use it async
+static IUBUS_INSTANCE: OnceCell<Arc<Strong<dyn IUBus>>> = OnceCell::new();
 
 // This keeps Rust from "mangling" the name and making it unique for this
 // crate.
@@ -70,7 +73,15 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
             Config::default().with_max_level(LevelFilter::Trace),
         );
 
-    // TODO: Here we'd do the dance of turning a Java Binder object into a strongly typed Rust binder interface
+    // TODO: Examine this more closely and ensure that if something bad happens in unsafe-land
+    //   we react appropriately.
+    let binder_object = unsafe { JObject::from_raw(binder) };
+    let binder_object_global_ref = env.new_global_ref(binder_object);
+
+    let binder_object_global_ref = binder_object_global_ref.unwrap();
+
+    JAVA_BINDER_INSTANCE.set(binder_object_global_ref.into()).unwrap_or_else(|_| panic!("Instance was already set!"));
+
     let aibinder = unsafe { binder_ndk_sys::AIBinder_fromJavaBinder(env.get_raw(), binder) };
     let spibinder = unsafe { new_spibinder(aibinder) };
 
@@ -90,9 +101,9 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
 
     let ubus = Arc::new(spibinder.into_interface::<dyn IUBus>().expect("Unable to obtain strong interface"));
 
-    INSTANCE.set(ubus).unwrap_or_else(|_| panic!("Instance was already set!"));
+    IUBUS_INSTANCE.set(ubus).unwrap_or_else(|_| panic!("Instance was already set!"));
 
-    let type_of_ubus = type_of(&INSTANCE.get().expect("ubus is not initialized"));
+    let type_of_ubus = type_of(&IUBUS_INSTANCE.get().expect("ubus is not initialized"));
 
     let package_name = "org.eclipse.uprotocol.core.ustreamer";
     let uentity = UEntity {
@@ -114,7 +125,7 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
     let uentity_size = format!("uentity_size: {}", size);
     let uentity_bytes = format!("bytes: {:?}", bytes);
 
-    let ustatus_registerClient = INSTANCE.get().expect("ubus is not initialized").registerClient(&package_name, &uentity.into(), &client_token, my_flags, &my_iulistener_binder);
+    let ustatus_registerClient = IUBUS_INSTANCE.get().expect("ubus is not initialized").registerClient(&package_name, &uentity.into(), &client_token, my_flags, &my_iulistener_binder);
 
     let ustatus_registerClient_string = format!("ustatus_registerClient: {:?}", ustatus_registerClient);
 
@@ -130,34 +141,30 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
         ..Default::default()
     };
 
-    let bad_uuri = UUri {
-        entity: Some(UEntity {
-            name: "topic_to_subscribe_to".to_string(),
-            ..Default::default()
-        }).into(),
-        ..Default::default()
-    };
 
-    let ustatus_enableDispatching_success = INSTANCE.get().expect("ubus is not initialized").enableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
-    let ustatus_enableDispatching_success_string = format!("ustatus_enableDispatching_success: {:?}", ustatus_enableDispatching_success);
-
-    let ustatus_enableDispatching_failure = INSTANCE.get().expect("ubus is not initialized").enableDispatching(&bad_uuri.into(), my_flags, &client_token);
-    let ustatus_enableDispatching_failure_string = format!("ustatus_enableDispatching_failure: {:?}", ustatus_enableDispatching_failure);
-
-    let ustatus_disableDispatching_success = INSTANCE.get().expect("ubus is not initialized").disableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
-    let ustatus_disableDispatching_success_string = format!("ustatus_disableDispatching_success: {:?}", ustatus_disableDispatching_success);
+    let java_vm = env.get_java_vm();
+    if java_vm.is_err() {
+        panic!("unable to obtain java_vm: {:?}", java_vm);
+    }
+    let java_vm = java_vm.unwrap();
 
     let mut sleep_counter: u64 = 0;
+    let run = 25;
     task::spawn(async move {
+        info!("entered newly spawned task");
+        let task_local_env = java_vm.attach_current_thread_as_daemon();
+        if task_local_env.is_err() {
+            panic!("unable to attach spawned task to jvm: {:?}", task_local_env);
+        }
         loop {
-//             let ustatus_enableDispatchingTask_success = INSTANCE.get().expect("ubus is not initialized").enableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
-//             let ustatus_enableDispatchingTask_success_string = format!("ustatus_enableDispatching_success: {:?}", ustatus_enableDispatching_success);
-//
-//             let ustatus_disableDispatchingTask_success = INSTANCE.get().expect("ubus is not initialized").disableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
-//             let ustatus_disableDispatchingTask_success_string = format!("ustatus_disableDispatching_success: {:?}", ustatus_disableDispatching_success);
+            info!("top of loop");
+            let ustatus_enableDispatchingTask_success = IUBUS_INSTANCE.get().expect("ubus is not initialized").enableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
+            info!("ustatus_enableDispatchingTask: {:?}", ustatus_enableDispatchingTask_success);
+            let ustatus_disableDispatchingTask_success = IUBUS_INSTANCE.get().expect("ubus is not initialized").disableDispatching(&good_uuri.clone().into(), my_flags, &client_token);
+            info!("ustatus_disableDispatchingTask: {:?}", ustatus_disableDispatchingTask_success);
 
-            info!("sleeping for 1 second, sleep_counter: {sleep_counter}");
-            task::sleep(Duration::from_millis(100)).await;
+            info!("sleeping for 1 second, sleep_counter, run #: {run},  {sleep_counter}");
+            std::thread::sleep(Duration::from_secs(1));
             sleep_counter += 1;
         }
     });
@@ -171,9 +178,7 @@ pub extern "system" fn Java_org_eclipse_uprotocol_core_ustreamer_UStreamerGlue_f
                               &uentity_size,
                               &uentity_bytes,
                               &ustatus_registerClient_string,
-                              &ustatus_enableDispatching_success_string,
-                              &ustatus_enableDispatching_failure_string,
-                              &ustatus_disableDispatching_success_string];
+                              ];
     let status_string = status_strings.join("\n");
 
     // Then we have to create a new Java string to return. Again, more info
