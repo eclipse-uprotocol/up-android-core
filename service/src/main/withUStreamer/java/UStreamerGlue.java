@@ -10,6 +10,6 @@ public class UStreamerGlue {
         // This actually loads the shared object that we'll be creating.
         // The actual location of the .so or .dll may differ based on your
         // platform.
-        System.loadLibrary("ustreamer_glue");
+        System.loadLibrary("ustreamer_bridge");
     }
 }

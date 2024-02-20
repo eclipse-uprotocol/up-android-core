@@ -76,9 +76,31 @@ android {
         jvmTarget = '17'
     }
 
+    // whether or not to build with the native Rust uStreamer
+    flavorDimensions = ["ustreamer"]
+    productFlavors {
+        withUStreamer {
+            // Assigns this product flavor to the "version" flavor dimension.
+            // If you are using only one dimension, this property is optional,
+            // and the plugin automatically assigns all the module's flavors to
+            // that dimension.
+            dimension "ustreamer"
+        }
+        withoutUStreamer {
+            dimension "ustreamer"
+        }
+    }
+
     sourceSets {
-        main {
-            jniLibs.srcDirs = ["src/main/jniLibs"]
+        withUStreamer {
+            java {
+                srcDirs 'src/main/withUStreamer/java'
+            }
+        }
+        withoutUStreamer {
+            java {
+                srcDirs 'src/main/withoutUStreamer/java'
+            }
         }
         test.assets.srcDirs += files("$projectDir/src/test/".toString())
     }

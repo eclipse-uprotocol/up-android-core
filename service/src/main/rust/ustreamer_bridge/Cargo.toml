@@ -1,5 +1,5 @@
 [package]
-name = "ustreamer-glue"
+name = "ustreamer_bridge"
 version = "0.1.0"
 edition = "2021"
 
