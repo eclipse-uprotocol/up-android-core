@@ -26,26 +26,19 @@ package org.eclipse.uprotocol.core.internal.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.eclipse.uprotocol.core.TestBase;
-import org.eclipse.uprotocol.uuid.factory.UuidUtils;
 import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UMessageType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
-
-import java.util.Optional;
 
 @RunWith(AndroidJUnit4.class)
 public class UMessageUtilsTest extends TestBase {
-    private static final int DELTA = 30;
 
     @Test
     public void testCheckMessageValid() {
@@ -111,67 +104,6 @@ public class UMessageUtilsTest extends TestBase {
     }
 
     @Test
-    public void testIsExpired() {
-        final UMessage message = buildRequestMessage(RESPONSE_URI, METHOD_URI, DELAY_MS - DELTA);
-        assertFalse(UMessageUtils.isExpired(message));
-        sleep(DELAY_MS);
-        assertTrue(UMessageUtils.isExpired(message));
-    }
-
-    @Test
-    public void testIsExpiredNoTtl() {
-        final UMessage message = buildPublishMessage();
-        assertFalse(UMessageUtils.isExpired(message));
-        assertFalse(UMessageUtils.isExpired(UMessage.newBuilder(message)
-                .setAttributes(UAttributes.newBuilder(message.getAttributes())
-                        .setTtl(-1)
-                        .build())
-                .build()));
-    }
-
-    @Test
-    public void testGetElapsedTime() {
-        final UMessage message = buildPublishMessage();
-        sleep(DELAY_MS);
-        assertEquals(DELAY_MS, UMessageUtils.getElapsedTime(message).orElse(0L), DELTA);
-    }
-
-    @Test
-    public void testGetElapsedTimeCreationTimeUnknown() {
-        assertFalse(UMessageUtils.getElapsedTime(EMPTY_MESSAGE).isPresent());
-    }
-
-    @Test
-    public void testGetElapsedTimeCreationTimeInFuture() {
-        try (MockedStatic<UuidUtils> mockedUuidUtils = mockStatic(UuidUtils.class)) {
-            final UMessage message = buildPublishMessage();
-            mockedUuidUtils.when(() -> UuidUtils.getTime(message.getAttributes().getId()))
-                    .thenReturn(Optional.of( System.currentTimeMillis() + DELAY_LONG_MS));
-            assertFalse(UMessageUtils.getElapsedTime(message).isPresent());
-        }
-    }
-
-    @Test
-    public void testGetRemainingTime() {
-        final UMessage message = buildRequestMessage(RESPONSE_URI, METHOD_URI, TTL);
-        assertEquals(TTL, UMessageUtils.getRemainingTime(message).orElse(0L), DELTA);
-        sleep(DELAY_MS);
-        assertEquals(TTL - DELAY_MS, UMessageUtils.getRemainingTime(message).orElse(0L), DELTA);
-    }
-
-    @Test
-    public void testGetRemainingTimeNoTtl() {
-        assertFalse(UMessageUtils.getRemainingTime(buildPublishMessage()).isPresent());
-    }
-
-    @Test
-    public void testGetRemainingTimeExpired() {
-        final UMessage message = buildRequestMessage(RESPONSE_URI, METHOD_URI, DELAY_MS - DELTA);
-        sleep(DELAY_MS);
-        assertFalse(UMessageUtils.getRemainingTime(message).isPresent());
-    }
-
-    @Test
     public void testBuildResponseMessage() {
         final UMessage requestMessage = buildRequestMessage();
         final UMessage responseMessage = UMessageUtils.buildResponseMessage(requestMessage, PAYLOAD);
@@ -192,6 +124,6 @@ public class UMessageUtilsTest extends TestBase {
         assertEquals(requestMessage.getAttributes().getSource(), responseMessage.getAttributes().getSink());
         assertEquals(requestMessage.getAttributes().getId(), responseMessage.getAttributes().getReqid());
         assertEquals(requestMessage.getAttributes().getPriority(), responseMessage.getAttributes().getPriority());
-        assertEquals(UCode.ABORTED.getNumber(), responseMessage.getAttributes().getCommstatus());
+        assertEquals(UCode.ABORTED, responseMessage.getAttributes().getCommstatus());
     }
 }

@@ -44,7 +44,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import org.eclipse.uprotocol.common.util.log.Key;

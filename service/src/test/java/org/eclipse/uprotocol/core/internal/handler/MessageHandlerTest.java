@@ -25,13 +25,11 @@ package org.eclipse.uprotocol.core.internal.handler;
 
 import static org.eclipse.uprotocol.common.util.UStatusUtils.STATUS_OK;
 import static org.eclipse.uprotocol.common.util.UStatusUtils.buildStatus;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -45,16 +43,12 @@ import android.os.IBinder;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.eclipse.uprotocol.common.UStatusException;
 import org.eclipse.uprotocol.core.TestBase;
 import org.eclipse.uprotocol.core.ubus.UBus;
-import org.eclipse.uprotocol.rpc.CallOptions;
-import org.eclipse.uprotocol.rpc.URpcListener;
 import org.eclipse.uprotocol.transport.UListener;
 import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UMessage;
-import org.eclipse.uprotocol.v1.UPayload;
 import org.eclipse.uprotocol.v1.UStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +63,6 @@ public class MessageHandlerTest extends TestBase {
     private final UBus mUBus = mock(UBus.class);
     private final UListener mListener1 = mock(UListener.class);
     private final UListener mListener2 = mock(UListener.class);
-    private final URpcListener mRpcListener1 = mock(URpcListener.class);
-    private final URpcListener mRpcListener2 = mock(URpcListener.class);
     private final IBinder mClientToken = new Binder();
     private MessageHandler mMessageHandler;
 
@@ -87,84 +79,84 @@ public class MessageHandlerTest extends TestBase {
     }
 
     @Test
-    public void testRegisterListener() {
+    public void testRegisterGenericListener() {
         assertTrue(mMessageHandler.registerListener(RESOURCE_URI, mListener1));
     }
 
     @Test
-    public void testRegisterListenerRejected() {
+    public void testRegisterGenericListenerRejected() {
         when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_ERROR);
         assertFalse(mMessageHandler.registerListener(RESOURCE_URI, mListener1));
     }
 
     @Test
-    public void testRegisterListenerOtherRegistered() {
+    public void testRegisterGenericListenerOtherRegistered() {
         assertTrue(mMessageHandler.registerListener(RESOURCE_URI, mListener1));
         assertTrue(mMessageHandler.registerListener(RESOURCE_URI, mListener2));
     }
 
     @Test
-    public void testUnregisterListener() {
-        testRegisterListener();
+    public void testUnregisterGenericListener() {
+        testRegisterGenericListener();
         assertTrue(mMessageHandler.unregisterListener(RESOURCE_URI, mListener1));
     }
 
     @Test
-    public void testUnregisterListenerOtherRegistered() {
-        testRegisterListenerOtherRegistered();
+    public void testUnregisterGenericListenerOtherRegistered() {
+        testRegisterGenericListenerOtherRegistered();
         assertTrue(mMessageHandler.unregisterListener(RESOURCE_URI, mListener1));
         assertTrue(mMessageHandler.unregisterListener(RESOURCE_URI, mListener2));
     }
 
     @Test
-    public void testUnregisterListenerNotRegistered() {
+    public void testUnregisterGenericListenerNotRegistered() {
         assertFalse(mMessageHandler.unregisterListener(RESOURCE_URI, mListener1));
     }
 
     @Test
-    public void testRegisterRpcListener() {
-        assertTrue(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener1));
+    public void testRegisterRequestListener() {
+        assertTrue(mMessageHandler.registerListener(METHOD_URI, mListener1));
     }
 
     @Test
-    public void testRegisterRpcListenerRejected() {
+    public void testRegisterRequestListenerRejected() {
         when(mUBus.enableDispatching(any(), anyInt(), any())).thenReturn(STATUS_ERROR);
-        assertFalse(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener1));
+        assertFalse(mMessageHandler.registerListener(METHOD_URI, mListener1));
     }
 
     @Test
-    public void testRegisterRpcListenerOtherRegistered() {
-        assertTrue(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener1));
-        assertFalse(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener2));
+    public void testRegisterRequestListenerOtherRegistered() {
+        assertTrue(mMessageHandler.registerListener(METHOD_URI, mListener1));
+        assertFalse(mMessageHandler.registerListener(METHOD_URI, mListener2));
     }
 
     @Test
-    public void testUnregisterRpcListener() {
-        testRegisterRpcListener();
-        assertTrue(mMessageHandler.unregisterRpcListener(METHOD_URI, mRpcListener1));
+    public void testUnregisterRequestListener() {
+        testRegisterRequestListener();
+        assertTrue(mMessageHandler.unregisterListener(METHOD_URI, mListener1));
     }
 
     @Test
-    public void testUnregisterRpcListenerNotRegistered() {
-        assertTrue(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener1));
-        assertFalse(mMessageHandler.unregisterRpcListener(METHOD_URI, mRpcListener2));
+    public void testUnregisterRequestListenerNotRegistered() {
+        assertTrue(mMessageHandler.registerListener(METHOD_URI, mListener1));
+        assertFalse(mMessageHandler.unregisterListener(METHOD_URI, mListener2));
     }
 
     @Test
     public void testUnregisterAllListeners() {
         registerListeners();
         assertTrue(mMessageHandler.isRegistered(RESOURCE_URI, mListener1));
-        assertTrue(mMessageHandler.isRegistered(METHOD_URI, mRpcListener1));
+        assertTrue(mMessageHandler.isRegistered(METHOD_URI, mListener1));
         assertFalse(mMessageHandler.isRegistered(RESOURCE_URI, mListener2));
-        assertFalse(mMessageHandler.isRegistered(METHOD_URI, mRpcListener2));
+        assertFalse(mMessageHandler.isRegistered(METHOD_URI, mListener2));
         mMessageHandler.unregisterAllListeners();
         assertFalse(mMessageHandler.isRegistered(RESOURCE_URI, mListener1));
-        assertFalse(mMessageHandler.isRegistered(METHOD_URI, mRpcListener1));
+        assertFalse(mMessageHandler.isRegistered(METHOD_URI, mListener1));
     }
     
     private void registerListeners() {
         assertTrue(mMessageHandler.registerListener(RESOURCE_URI, mListener1));
-        assertTrue(mMessageHandler.registerRpcListener(METHOD_URI, mRpcListener1));
+        assertTrue(mMessageHandler.registerListener(METHOD_URI, mListener1));
     }
 
     @Test
@@ -180,7 +172,6 @@ public class MessageHandlerTest extends TestBase {
         final UMessage message = buildPublishMessage(RESOURCE2_URI);
         mMessageHandler.onReceive(message);
         verify(mListener1, never()).onReceive(message);
-        verify(mRpcListener1, never()).onReceive(eq(message), any());
     }
 
     @Test
@@ -188,58 +179,7 @@ public class MessageHandlerTest extends TestBase {
         registerListeners();
         final UMessage requestMessage = buildRequestMessage(RESPONSE_URI, METHOD_URI);
         mMessageHandler.onReceive(requestMessage);
-        verify(mRpcListener1, times(1)).onReceive(eq(requestMessage), any());
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testOnReceiveRequestMessageSendResponse() {
-        registerListeners();
-        final UMessage requestMessage = buildRequestMessage(RESPONSE_URI, METHOD_URI);
-        mMessageHandler.onReceive(requestMessage);
-        final ArgumentCaptor<CompletableFuture<UPayload>> captor = ArgumentCaptor.forClass(CompletableFuture.class);
-        verify(mRpcListener1, times(1)).onReceive(eq(requestMessage), captor.capture());
-        final CompletableFuture<UPayload> responseFuture = captor.getValue();
-        responseFuture.complete(PAYLOAD);
-        verify(mUBus, times(1)).send(argThat(message -> {
-            assertEquals(PAYLOAD, message.getPayload());
-            assertEquals(METHOD_URI, message.getAttributes().getSource());
-            assertEquals(RESPONSE_URI, message.getAttributes().getSink());
-            return true;
-        }), eq(mClientToken));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testOnReceiveRequestMessageSendResponseWithCommStatus() {
-        registerListeners();
-        final UMessage requestMessage = buildRequestMessage(RESPONSE_URI, METHOD_URI);
-        mMessageHandler.onReceive(requestMessage);
-        final ArgumentCaptor<CompletableFuture<UPayload>> captor = ArgumentCaptor.forClass(CompletableFuture.class);
-        verify(mRpcListener1, times(1)).onReceive(eq(requestMessage), captor.capture());
-        final CompletableFuture<UPayload> responseFuture = captor.getValue();
-        responseFuture.completeExceptionally(new UStatusException(UCode.ABORTED, "Aborted"));
-        verify(mUBus, times(1)).send(argThat(message -> {
-            assertEquals(UPayload.getDefaultInstance(), message.getPayload());
-            assertEquals(METHOD_URI, message.getAttributes().getSource());
-            assertEquals(RESPONSE_URI, message.getAttributes().getSink());
-            assertEquals(UCode.ABORTED_VALUE, message.getAttributes().getCommstatus());
-            return true;
-        }), eq(mClientToken));
-    }
-
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testOnReceiveRequestMessageInvalidResponse() {
-        registerListeners();
-        final UMessage requestMessage = buildRequestMessage(RESPONSE_URI, METHOD_URI);
-        mMessageHandler.onReceive(requestMessage);
-        final ArgumentCaptor<CompletableFuture<UPayload>> captor = ArgumentCaptor.forClass(CompletableFuture.class);
-        verify(mRpcListener1, times(1)).onReceive(eq(requestMessage), captor.capture());
-        final CompletableFuture<UPayload> responseFuture = captor.getValue();
-        responseFuture.complete(null);
-        verify(mUBus, times(0)).send(any(), eq(mClientToken));
+        verify(mListener1, times(1)).onReceive(requestMessage);
     }
 
     @Test
@@ -248,14 +188,13 @@ public class MessageHandlerTest extends TestBase {
         final UMessage message = buildRequestMessage(RESPONSE_URI, METHOD2_URI);
         mMessageHandler.onReceive(message);
         verify(mListener1, never()).onReceive(message);
-        verify(mRpcListener1, never()).onReceive(eq(message), any());
     }
 
     @Test
     public void testOnReceiveResponseMessage() {
         registerListeners();
         final CompletableFuture<UMessage> responseFuture =
-                mMessageHandler.getRpcExecutor().invokeMethod(METHOD_URI, PAYLOAD, CallOptions.DEFAULT).toCompletableFuture();
+                mMessageHandler.getRpcExecutor().invokeMethod(METHOD_URI, PAYLOAD, OPTIONS).toCompletableFuture();
         final ArgumentCaptor<UMessage> captor = ArgumentCaptor.forClass(UMessage.class);
         verify(mUBus, timeout(DELAY_LONG_MS).times(1)).send(captor.capture(), eq(mClientToken));
         assertFalse(responseFuture.isDone());
@@ -270,7 +209,6 @@ public class MessageHandlerTest extends TestBase {
         final UMessage message = buildMessage(PAYLOAD, UAttributes.getDefaultInstance());
         mMessageHandler.onReceive(message);
         verify(mListener1, never()).onReceive(message);
-        verify(mRpcListener1, never()).onReceive(eq(message), any());
         verify(mUBus, timeout(DELAY_MS).times(0)).send(message, mClientToken);
     }
 }

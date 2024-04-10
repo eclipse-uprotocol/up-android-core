@@ -32,7 +32,6 @@ import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.stringify;
 import static org.eclipse.uprotocol.core.internal.util.CommonUtils.emptyIfNull;
 import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.addSinkIfEmpty;
-import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.isExpired;
 import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.removeSink;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.checkTopicUriValid;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.isMethodUri;
@@ -42,6 +41,7 @@ import static org.eclipse.uprotocol.core.internal.util.UUriUtils.toUri;
 import static org.eclipse.uprotocol.core.internal.util.log.FormatterExt.stringify;
 import static org.eclipse.uprotocol.core.ubus.UBusManager.FLAG_BLOCK_AUTO_FETCH;
 import static org.eclipse.uprotocol.uri.validator.UriValidator.isEmpty;
+import static org.eclipse.uprotocol.uuid.factory.UuidUtils.isExpired;
 
 import static java.util.Collections.emptyList;
 
@@ -243,7 +243,7 @@ public class Dispatcher extends UBus.Component {
         return switch (type) {
             case UMESSAGE_TYPE_REQUEST -> mRpcHandler.handleRequestMessage(message, client);
             case UMESSAGE_TYPE_RESPONSE -> mRpcHandler.handleResponseMessage(message, client);
-            case UMESSAGE_TYPE_PUBLISH -> handleGenericMessage(message, client);
+            case UMESSAGE_TYPE_PUBLISH, UMESSAGE_TYPE_NOTIFICATION -> handleGenericMessage(message, client);
             default -> buildStatus(UCode.UNIMPLEMENTED, "Message type '" + type + "' is not supported");
         };
     }
@@ -336,7 +336,7 @@ public class Dispatcher extends UBus.Component {
         final UUri topic = message.getAttributes().getSource();
         try {
             checkAuthority(topic, client);
-            checkArgument(!isExpired(message), UCode.DEADLINE_EXCEEDED, "Event expired");
+            checkArgument(!isExpired(message.getAttributes()), UCode.DEADLINE_EXCEEDED, "Event expired");
 
             UUri sink = message.getAttributes().getSink();
             if (isRemoteBroadcast(topic, sink)) {

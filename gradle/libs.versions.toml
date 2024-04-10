@@ -20,9 +20,8 @@ ksp = "1.9.21-1.0.15"
 mockito = "4.6.1"
 robolectric = "4.7.3"
 room = "2.4.2"
-room-testing = "1.1.1"
-up-client-android-java = "1.5.+"
-up-java = "1.5.8"
+up-client-android-java = "0.1.+"
+up-java = "0.1.9"
 
 [libraries]
 android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
@@ -36,7 +35,7 @@ mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-room-testing = { module = "android.arch.persistence.room:testing", version.ref = "room-testing" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 up-client-android-java = { module = "org.eclipse.uprotocol:up-client-android-java", version.ref = "up-client-android-java" }
 up-java = { module = "org.eclipse.uprotocol:up-java", version.ref = "up-java" }
 

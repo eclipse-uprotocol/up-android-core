@@ -15,7 +15,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <permission android:name="uprotocol.permission.ACCESS_UBUS"
-        android:protectionLevel="normal" />
+        android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
         tools:ignore="ProtectedPermissions" />

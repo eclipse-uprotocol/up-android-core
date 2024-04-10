@@ -30,18 +30,17 @@ import androidx.annotation.VisibleForTesting;
 
 import org.eclipse.uprotocol.common.UStatusException;
 import org.eclipse.uprotocol.core.ubus.UBus;
-import org.eclipse.uprotocol.rpc.CallOptions;
 import org.eclipse.uprotocol.rpc.RpcClient;
 import org.eclipse.uprotocol.transport.UListener;
 import org.eclipse.uprotocol.transport.builder.UAttributesBuilder;
 import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
+import org.eclipse.uprotocol.v1.CallOptions;
 import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
 import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UMessageType;
 import org.eclipse.uprotocol.v1.UPayload;
-import org.eclipse.uprotocol.v1.UPriority;
 import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUID;
 import org.eclipse.uprotocol.v1.UUri;
@@ -52,8 +51,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RpcExecutor implements RpcClient, UListener {
-    public static final UPriority REQUEST_PRIORITY = UPriority.UPRIORITY_CS4;
-
     private static final RpcExecutor EMPTY = new Empty();
 
     private final UBus mUBus;
@@ -88,8 +85,10 @@ public class RpcExecutor implements RpcClient, UListener {
     @Override
     public @NonNull CompletionStage<UMessage> invokeMethod(@NonNull UUri methodUri, @NonNull UPayload requestPayload,
             @NonNull CallOptions options) {
-        final UAttributesBuilder builder = UAttributesBuilder.request(mResponseUri, methodUri, REQUEST_PRIORITY, options.timeout());
-        options.token().ifPresent(builder::withToken);
+        final UAttributesBuilder builder = UAttributesBuilder.request(mResponseUri, methodUri, options.getPriority(), options.getTtl());
+        if (options.hasToken()) {
+            builder.withToken(options.getToken());
+        }
         final UMessage requestMessage = UMessage.newBuilder()
                 .setPayload(requestPayload)
                 .setAttributes(builder.build())
@@ -115,7 +114,7 @@ public class RpcExecutor implements RpcClient, UListener {
             final UUID requestId = attributes.getReqid();
             final CompletableFuture<UMessage> responseFuture = mRequests.remove(requestId);
             if (responseFuture != null) {
-                final UCode code = UCode.forNumber(attributes.getCommstatus());
+                final UCode code = attributes.getCommstatus();
                 if (code == UCode.OK) {
                     responseFuture.complete(message);
                 } else {
