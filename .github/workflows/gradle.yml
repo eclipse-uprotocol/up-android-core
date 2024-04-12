@@ -34,13 +34,6 @@ jobs:
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
 
-    # TODO: Remove when published to maven central!!!
-    - name: Fetch up-client-android-java
-      run: |
-        git clone --branch v0.1.0-dev https://github.com/eclipse-uprotocol/up-client-android-java.git
-        cd up-client-android-java
-        ./gradlew publishToMavenLocal
-
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
