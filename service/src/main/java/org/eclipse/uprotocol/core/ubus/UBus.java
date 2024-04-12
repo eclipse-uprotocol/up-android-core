@@ -196,6 +196,9 @@ public class UBus extends UCore.Component {
 
     public @NonNull <T> UStatus registerClient(@NonNull String packageName, @NonNull UEntity entity,
             @NonNull IBinder clientToken, @NonNull T listener) {
+        // TODO: PELE - Remove this logging eventually
+        Log.d(TAG, "ParcelableUEntity: " + entity);
+
         return mClientManager.registerClient(packageName, entity, clientToken, listener);
     }
 
