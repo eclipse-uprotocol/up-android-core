@@ -53,6 +53,7 @@ import org.eclipse.uprotocol.core.usubscription.v3.SubscriptionStatus;
 import org.eclipse.uprotocol.core.usubscription.v3.SubscriptionStatus.State;
 import org.eclipse.uprotocol.transport.builder.UAttributesBuilder;
 import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
+import org.eclipse.uprotocol.v1.CallOptions;
 import org.eclipse.uprotocol.v1.UAttributes;
 import org.eclipse.uprotocol.v1.UAuthority;
 import org.eclipse.uprotocol.v1.UCode;
@@ -62,7 +63,6 @@ import org.eclipse.uprotocol.v1.UPayload;
 import org.eclipse.uprotocol.v1.UPriority;
 import org.eclipse.uprotocol.v1.UResource;
 import org.eclipse.uprotocol.v1.UStatus;
-import org.eclipse.uprotocol.v1.UUID;
 import org.eclipse.uprotocol.v1.UUri;
 import org.eclipse.uprotocol.v1.internal.ParcelableUMessage;
 import org.junit.function.ThrowingRunnable;
@@ -70,10 +70,9 @@ import org.junit.function.ThrowingRunnable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"SameParameterValue", "unused"})
+@SuppressWarnings({"SameParameterValue"})
 public class TestBase {
     protected static final String PACKAGE_NAME = "org.eclipse.uprotocol.core.test";
-    protected static final String PACKAGE_NAME2 = "org.eclipse.uprotocol.core.test2";
     protected static final UEntity SERVICE = buildEntity("test.srv", 1);
     protected static final UEntity SERVICE2 = buildEntity("test.srv", 2);
     protected static final UEntity CLIENT = buildEntity("test.app", 1);
@@ -86,7 +85,6 @@ public class TestBase {
     protected static final UResource RESOURCE2 = buildResource("config", null, "Config");
     protected static final UResource METHOD = UResourceBuilder.forRpcRequest("UpdateDoor");
     protected static final UResource METHOD2 = UResourceBuilder.forRpcRequest("UpdateWindow");
-    protected static final UResource METHOD3 = UResourceBuilder.forRpcRequest("UpdateSunroof");
     protected static final UUri LOCAL_SERVER_URI = buildUri(null, SERVICE, null);
     protected static final UUri LOCAL_SERVER2_URI = buildUri(null, SERVICE2, null);
     protected static final UUri LOCAL_CLIENT_URI = buildUri(null, CLIENT, null);
@@ -119,6 +117,11 @@ public class TestBase {
     protected static final Int32Value DATA = Int32Value.newBuilder().setValue(101).build();
     protected static final UPayload PAYLOAD = packToAny(DATA);
     protected static final UMessage EMPTY_MESSAGE = UMessage.getDefaultInstance();
+    protected static final CallOptions OPTIONS = CallOptions.newBuilder()
+            .setPriority(UPriority.UPRIORITY_CS4)
+            .setTtl(TTL)
+            .setToken(TOKEN)
+            .build();
 
     protected static @NonNull UAuthority buildAuthority(@NonNull String name) {
         return UAuthority.newBuilder()
@@ -171,19 +174,6 @@ public class TestBase {
                 .build();
     }
 
-    protected static @NonNull UAttributes buildPublishAttributes(@NonNull UUri source) {
-        return newPublishAttributesBuilder(source).build();
-    }
-
-    protected static @NonNull UAttributes buildRequestAttributes(@NonNull UUri responseUri, @NonNull UUri methodUri) {
-        return newRequestAttributesBuilder(responseUri, methodUri).build();
-    }
-
-    protected static @NonNull UAttributes buildResponseAttributes(@NonNull UUri methodUri, @NonNull UUri responseUri,
-            @NonNull UUID requestId) {
-        return newResponseAttributesBuilder(methodUri, responseUri, requestId).build();
-    }
-
     protected static @NonNull UAttributesBuilder newPublishAttributesBuilder(@NonNull UUri source) {
         return UAttributesBuilder.publish(source, UPriority.UPRIORITY_CS0);
     }
@@ -198,9 +188,8 @@ public class TestBase {
         return UAttributesBuilder.request(responseUri, methodUri, UPriority.UPRIORITY_CS4, TTL);
     }
 
-    protected static @NonNull UAttributesBuilder newResponseAttributesBuilder(@NonNull UUri methodUri,
-            @NonNull UUri responseUri, @NonNull UUID requestId) {
-        return UAttributesBuilder.response(methodUri, responseUri, UPriority.UPRIORITY_CS4, requestId);
+    protected static @NonNull UAttributesBuilder newResponseAttributesBuilder(@NonNull UAttributes requestAttributes) {
+        return UAttributesBuilder.response(requestAttributes);
     }
 
     protected static @NonNull UMessage buildMessage(UPayload payload, UAttributes attributes) {
@@ -226,16 +215,7 @@ public class TestBase {
         return buildMessage(PAYLOAD, newPublishAttributesBuilder(topic).withTtl(ttl).build());
     }
 
-    protected static @NonNull UMessage buildNotificationMessage() {
-        return buildMessage(PAYLOAD, newNotificationAttributesBuilder(RESOURCE_URI, CLIENT_URI).build());
-    }
-
     protected static @NonNull UMessage buildNotificationMessage(@NonNull UUri topic, @NonNull UUri sink) {
-        return buildMessage(PAYLOAD, newNotificationAttributesBuilder(topic, sink).build());
-    }
-
-    protected static @NonNull UMessage buildNotificationMessage(@NonNull UUri topic, @NonNull UUri sink,
-            @NonNull UPayload payload) {
         return buildMessage(PAYLOAD, newNotificationAttributesBuilder(topic, sink).build());
     }
 
@@ -254,41 +234,28 @@ public class TestBase {
     }
 
     protected static @NonNull UMessage buildRequestMessage(@NonNull UUri responseUri, @NonNull UUri methodUri,
-            @NonNull UPayload payload, int timeout){
-        return buildMessage(payload, newRequestAttributesBuilder(responseUri, methodUri).withTtl(timeout).build());
+            @NonNull UPayload payload){
+        return buildMessage(payload, newRequestAttributesBuilder(responseUri, methodUri).build());
     }
 
     protected static @NonNull UMessage buildResponseMessage(@NonNull UMessage requestMessage) {
-        final UAttributes attributes = requestMessage.getAttributes();
-        return buildMessage(PAYLOAD,
-                newResponseAttributesBuilder(attributes.getSink(), attributes.getSource(), attributes.getId())
-                        .build());
-    }
-
-    protected static @NonNull UMessage buildResponseMessage(@NonNull UMessage requestMessage, int timeout) {
-        final UAttributes attributes = requestMessage.getAttributes();
-        return buildMessage(PAYLOAD,
-                newResponseAttributesBuilder(attributes.getSink(), attributes.getSource(), attributes.getId())
-                        .withTtl(timeout)
-                        .build());
+        return buildMessage(PAYLOAD, newResponseAttributesBuilder(requestMessage.getAttributes()).build());
     }
 
     protected static @NonNull UMessage buildResponseMessage(@NonNull UMessage requestMessage,
-            @NonNull UPayload payload, int timeout) {
-        final UAttributes attributes = requestMessage.getAttributes();
-        return buildMessage(payload,
-                newResponseAttributesBuilder(attributes.getSink(), attributes.getSource(), attributes.getId())
-                        .withTtl(timeout)
-                        .build());
+            @NonNull UPayload payload) {
+        return buildMessage(payload, newResponseAttributesBuilder(requestMessage.getAttributes()).build());
+    }
+
+    protected static @NonNull UMessage buildResponseMessage(@NonNull UMessage requestMessage, int timeout) {
+        final UAttributes requestAttributes = requestMessage.getAttributes();
+        return buildMessage(PAYLOAD, newResponseAttributesBuilder(requestAttributes).withTtl(timeout).build());
     }
 
     protected static @NonNull UMessage buildFailureResponseMessage(@NonNull UMessage requestMessage,
             @NonNull UCode code) {
-        final UAttributes attributes = requestMessage.getAttributes();
-        return buildMessage(null,
-                newResponseAttributesBuilder(attributes.getSink(), attributes.getSource(), attributes.getId())
-                        .withCommStatus(code.getNumber())
-                        .build());
+        final UAttributes requestAttributes = requestMessage.getAttributes();
+        return buildMessage(null, newResponseAttributesBuilder(requestAttributes).withCommStatus(code).build());
     }
 
     protected static void assertStatus(@NonNull UCode code, @NonNull UStatus status) {

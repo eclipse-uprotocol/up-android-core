@@ -51,8 +51,8 @@ import com.google.protobuf.Message;
 import org.eclipse.uprotocol.core.TestBase;
 import org.eclipse.uprotocol.core.UCore;
 import org.eclipse.uprotocol.core.ubus.UBus;
-import org.eclipse.uprotocol.core.utwin.v1.GetLastMessagesResponse;
-import org.eclipse.uprotocol.core.utwin.v1.MessageResponse;
+import org.eclipse.uprotocol.core.utwin.v2.GetLastMessagesResponse;
+import org.eclipse.uprotocol.core.utwin.v2.MessageResponse;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UMessage;
 import org.eclipse.uprotocol.v1.UStatus;
@@ -90,7 +90,7 @@ public class UTwinTest extends TestBase {
     }
 
     private static <T extends Message> @NonNull UMessage buildRequestMessage(UUri methodUri, T message) {
-        return buildRequestMessage(buildResponseUri(CLIENT_URI), methodUri, packToAny(message), TTL);
+        return buildRequestMessage(buildResponseUri(CLIENT_URI), methodUri, packToAny(message));
     }
 
     private static @NonNull UUriBatch buildUUriBatch(@NonNull Collection<UUri> uris) {

@@ -31,11 +31,11 @@ import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.stringify;
 import static org.eclipse.uprotocol.core.internal.util.CommonUtils.emptyIfNull;
 import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildFailedResponseMessage;
-import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.getRemainingTime;
-import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.isExpired;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.checkMethodUriValid;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.isRemoteUri;
 import static org.eclipse.uprotocol.core.ubus.Dispatcher.checkAuthority;
+import static org.eclipse.uprotocol.uuid.factory.UuidUtils.getRemainingTime;
+import static org.eclipse.uprotocol.uuid.factory.UuidUtils.isExpired;
 
 import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 
@@ -202,7 +202,7 @@ class RpcHandler extends UBus.Component {
         final long startTime = System.currentTimeMillis();
         final UUID requestId = requestMessage.getAttributes().getId();
         final UUri methodUri = requestMessage.getAttributes().getSink();
-        final long timeout = getRemainingTime(requestMessage).orElse(0L);
+        final long timeout = getRemainingTime(requestMessage.getAttributes()).orElse(0L);
         try {
             checkAuthority(requestMessage.getAttributes().getSource(), client);
             checkArgument(timeout > 0, UCode.DEADLINE_EXCEEDED, "Message expired");
@@ -248,7 +248,7 @@ class RpcHandler extends UBus.Component {
         final UUri methodUri = responseMessage.getAttributes().getSource();
         try {
             checkAuthority(methodUri, server);
-            checkArgument(!isExpired(responseMessage), UCode.DEADLINE_EXCEEDED, "Message expired");
+            checkArgument(!isExpired(responseMessage.getAttributes()), UCode.DEADLINE_EXCEEDED, "Message expired");
             mRequests.compute(requestId, (key, request) -> {
                 checkNotNull(request, UCode.CANCELLED, "Request was either cancelled or expired");
                 request.timeoutFuture.cancel(false);

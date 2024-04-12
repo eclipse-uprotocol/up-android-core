@@ -26,9 +26,9 @@ package org.eclipse.uprotocol.core.utwin;
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.stringify;
 import static org.eclipse.uprotocol.core.internal.util.CommonUtils.emptyIfNull;
-import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.isExpired;
 import static org.eclipse.uprotocol.core.utwin.UTwin.TAG;
 import static org.eclipse.uprotocol.core.utwin.UTwin.VERBOSE;
+import static org.eclipse.uprotocol.uuid.factory.UuidUtils.isExpired;
 
 import static java.util.Collections.unmodifiableSet;
 
@@ -83,7 +83,7 @@ class MessageCache {
 
     public @Nullable UMessage getMessage(@NonNull UUri topic) {
         return mMessages.computeIfPresent(topic, (key, message) -> {
-            if (isExpired(message)) {
+            if (isExpired(message.getAttributes())) {
                 if (VERBOSE) {
                     Log.v(TAG, join(Key.STATE, "Expired", Key.MESSAGE, stringify(message)));
                 }

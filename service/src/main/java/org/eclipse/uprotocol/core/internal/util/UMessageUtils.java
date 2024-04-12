@@ -84,61 +84,17 @@ public interface UMessageUtils {
         return UriValidator.isEmpty(message.getAttributes().getSink()) ? replaceSink(message, sink) : message;
     }
 
-    static boolean isExpired(UMessage message) {
-        final UAttributes attributes = message.getAttributes();
-        return attributes.hasTtl() && isExpired(attributes.getId(), attributes.getTtl());
-    }
-
-    static Optional<Long> getElapsedTime(@NonNull UMessage message) {
-        return getElapsedTime(message.getAttributes().getId());
-    }
-
-    static Optional<Long> getRemainingTime(@NonNull UMessage message) {
-        final UAttributes attributes = message.getAttributes();
-        return getRemainingTime(attributes.getId(), attributes.getTtl());
-    }
-
-    @SuppressWarnings("SimplifyOptionalCallChains")
-    private static boolean isExpired(@NonNull UUID id, int ttl) {
-        return ttl > 0 && !getRemainingTime(id, ttl).isPresent();
-    }
-
-    private static Optional<Long> getElapsedTime(@NonNull UUID id) {
-        final long creationTime = UuidUtils.getTime(id).orElse(-1L);
-        if (creationTime < 0) {
-            return Optional.empty();
-        }
-        final long now = System.currentTimeMillis();
-        return (now >= creationTime) ? Optional.of(now - creationTime) : Optional.empty();
-    }
-
-    private static Optional<Long> getRemainingTime(@NonNull UUID id, int ttl) {
-        if (ttl <= 0) {
-            return Optional.empty();
-        }
-        return getElapsedTime(id)
-                .filter(elapsedTime -> ttl > elapsedTime)
-                .map(elapsedTime -> ttl - elapsedTime);
-    }
-
     static @NonNull UMessage buildResponseMessage(@NonNull UMessage requestMessage, @NonNull UPayload responsePayload) {
-        final UAttributes requestAttributes = requestMessage.getAttributes();
         return UMessage.newBuilder()
-                .setAttributes(UAttributesBuilder
-                        .response(requestAttributes.getSink(), requestAttributes.getSource(), UPriority.UPRIORITY_CS4, requestAttributes.getId())
-                        .build())
+                .setAttributes(UAttributesBuilder.response(requestMessage.getAttributes()).build())
                 .setPayload(responsePayload)
                 .build();
     }
 
     /** NOTE: To be used only by dispatchers */
-    static @NonNull UMessage buildFailedResponseMessage(@NonNull UMessage requestMessage, @NonNull UCode failure) {
-        final UAttributes requestAttributes = requestMessage.getAttributes();
+    static @NonNull UMessage buildFailedResponseMessage(@NonNull UMessage requestMessage, @NonNull UCode code) {
         return UMessage.newBuilder()
-                .setAttributes(UAttributesBuilder
-                        .response(requestAttributes.getSink(), requestAttributes.getSource(), UPriority.UPRIORITY_CS4, requestAttributes.getId())
-                        .withCommStatus(failure.getNumber())
-                        .build())
+                .setAttributes(UAttributesBuilder.response(requestMessage.getAttributes()).withCommStatus(code).build())
                 .build();
     }
 }

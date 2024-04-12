@@ -29,9 +29,10 @@ import static org.eclipse.uprotocol.common.util.UStatusUtils.toStatus;
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.status;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
+import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildResponseMessage;
 import static org.eclipse.uprotocol.core.internal.util.UUriUtils.checkTopicUriValid;
-import static org.eclipse.uprotocol.core.utwin.v1.UTwin.METHOD_GET_LAST_MESSAGES;
-import static org.eclipse.uprotocol.core.utwin.v1.UTwin.METHOD_SET_LAST_MESSAGE;
+import static org.eclipse.uprotocol.core.utwin.v2.UTwin.METHOD_GET_LAST_MESSAGES;
+import static org.eclipse.uprotocol.core.utwin.v2.UTwin.METHOD_SET_LAST_MESSAGE;
 import static org.eclipse.uprotocol.transport.builder.UPayloadBuilder.packToAny;
 import static org.eclipse.uprotocol.transport.builder.UPayloadBuilder.unpack;
 
@@ -49,8 +50,8 @@ import org.eclipse.uprotocol.common.util.log.Key;
 import org.eclipse.uprotocol.core.UCore;
 import org.eclipse.uprotocol.core.internal.handler.MessageHandler;
 import org.eclipse.uprotocol.core.ubus.UBus;
-import org.eclipse.uprotocol.core.utwin.v1.GetLastMessagesResponse;
-import org.eclipse.uprotocol.core.utwin.v1.MessageResponse;
+import org.eclipse.uprotocol.core.utwin.v2.GetLastMessagesResponse;
+import org.eclipse.uprotocol.core.utwin.v2.MessageResponse;
 import org.eclipse.uprotocol.uri.factory.UResourceBuilder;
 import org.eclipse.uprotocol.v1.UCode;
 import org.eclipse.uprotocol.v1.UEntity;
@@ -61,7 +62,6 @@ import org.eclipse.uprotocol.v1.UUri;
 import org.eclipse.uprotocol.v1.UUriBatch;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,7 +70,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("java:S3008")
 public class UTwin extends UCore.Component {
-    public static final UEntity SERVICE = org.eclipse.uprotocol.core.utwin.v1.UTwin.SERVICE;
+    public static final UEntity SERVICE = org.eclipse.uprotocol.core.utwin.v2.UTwin.SERVICE;
 
     protected static final String TAG = tag(SERVICE.getName());
     protected static boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
@@ -107,8 +107,8 @@ public class UTwin extends UCore.Component {
         mUBus = uCore.getUBus();
         mMessageHandler = new MessageHandler(mUBus, SERVICE, mClientToken, mExecutor);
         mUBus.registerClient(SERVICE, mClientToken, mMessageHandler);
-        mMessageHandler.registerRpcListener(Method.GET_LAST_MESSAGES.localUri(), this::getLastMessages);
-        mMessageHandler.registerRpcListener(Method.SET_LAST_MESSAGE.localUri(), this::setLastMessage);
+        mMessageHandler.registerListener(Method.GET_LAST_MESSAGES.localUri(), this::getLastMessages);
+        mMessageHandler.registerListener(Method.SET_LAST_MESSAGE.localUri(), this::setLastMessage);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class UTwin extends UCore.Component {
         return builder.build();
     }
 
-    private void getLastMessages(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
+    private void getLastMessages(@NonNull UMessage requestMessage) {
         final GetLastMessagesResponse.Builder builder = GetLastMessagesResponse.newBuilder();
         try {
             unpack(requestMessage.getPayload(), UUriBatch.class)
@@ -161,7 +161,7 @@ public class UTwin extends UCore.Component {
             Log.e(TAG, status("getLastMessages", status));
             builder.addResponses(buildMessageResponse(status, null, null));
         }
-        responseFuture.complete(packToAny(builder.build()));
+        sendResponse(requestMessage, packToAny(builder.build()));
     }
 
     private @NonNull MessageResponse getLastMessage(@NonNull UUri topic) {
@@ -178,8 +178,12 @@ public class UTwin extends UCore.Component {
     }
 
     @SuppressWarnings("unused")
-    private void setLastMessage(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(buildStatus(UCode.PERMISSION_DENIED)));
+    private void setLastMessage(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(buildStatus(UCode.PERMISSION_DENIED)));
+    }
+
+    private void sendResponse(@NonNull UMessage requestMessage, @NonNull UPayload responsePayload) {
+        mUBus.send(buildResponseMessage(requestMessage, responsePayload), mClientToken);
     }
 
     public boolean addMessage(@NonNull UMessage message) {

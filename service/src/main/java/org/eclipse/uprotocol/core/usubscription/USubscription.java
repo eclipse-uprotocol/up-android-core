@@ -28,6 +28,7 @@ import static org.eclipse.uprotocol.common.util.UStatusUtils.checkArgument;
 import static org.eclipse.uprotocol.common.util.log.Formatter.join;
 import static org.eclipse.uprotocol.common.util.log.Formatter.status;
 import static org.eclipse.uprotocol.common.util.log.Formatter.tag;
+import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildResponseMessage;
 import static org.eclipse.uprotocol.core.usubscription.v3.USubscription.METHOD_CREATE_TOPIC;
 import static org.eclipse.uprotocol.core.usubscription.v3.USubscription.METHOD_DEPRECATE_TOPIC;
 import static org.eclipse.uprotocol.core.usubscription.v3.USubscription.METHOD_FETCH_SUBSCRIBERS;
@@ -67,7 +68,6 @@ import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -147,16 +147,14 @@ public class USubscription extends UCore.Component {
         mSubscriptionHandler.init(this);
 
         mUBus.registerClient(SERVICE, mClientToken, mMessageHandler);
-        mMessageHandler.registerRpcListener(Method.CREATE_TOPIC.localUri(), this::createTopic);
-        mMessageHandler.registerRpcListener(Method.DEPRECATE_TOPIC.localUri(), this::deprecateTopic);
-        mMessageHandler.registerRpcListener(Method.SUBSCRIBE.localUri(), this::subscribe);
-        mMessageHandler.registerRpcListener(Method.UNSUBSCRIBE.localUri(), this::unsubscribe);
-        mMessageHandler.registerRpcListener(Method.FETCH_SUBSCRIPTIONS.localUri(), this::fetchSubscriptions);
-        mMessageHandler.registerRpcListener(Method.FETCH_SUBSCRIBERS.localUri(), this::fetchSubscribers);
-        mMessageHandler.registerRpcListener(Method.REGISTER_FOR_NOTIFICATIONS.localUri(),
-                this::registerForNotifications);
-        mMessageHandler.registerRpcListener(Method.UNREGISTER_FOR_NOTIFICATIONS.localUri(),
-                this::unregisterForNotifications);
+        mMessageHandler.registerListener(Method.CREATE_TOPIC.localUri(), this::createTopic);
+        mMessageHandler.registerListener(Method.DEPRECATE_TOPIC.localUri(), this::deprecateTopic);
+        mMessageHandler.registerListener(Method.SUBSCRIBE.localUri(), this::subscribe);
+        mMessageHandler.registerListener(Method.UNSUBSCRIBE.localUri(), this::unsubscribe);
+        mMessageHandler.registerListener(Method.FETCH_SUBSCRIPTIONS.localUri(), this::fetchSubscriptions);
+        mMessageHandler.registerListener(Method.FETCH_SUBSCRIBERS.localUri(), this::fetchSubscribers);
+        mMessageHandler.registerListener(Method.REGISTER_FOR_NOTIFICATIONS.localUri(), this::registerForNotifications);
+        mMessageHandler.registerListener(Method.UNREGISTER_FOR_NOTIFICATIONS.localUri(), this::unregisterForNotifications);
     }
 
     @Override
@@ -185,40 +183,40 @@ public class USubscription extends UCore.Component {
         return mExecutor;
     }
 
-    private void createTopic(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.createTopic(requestMessage)));
+    private void createTopic(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.createTopic(requestMessage)));
     }
 
-    private void deprecateTopic(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.deprecateTopic(requestMessage)));
+    private void deprecateTopic(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.deprecateTopic(requestMessage)));
     }
 
-    private void subscribe(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.subscribe(requestMessage)));
+    private void subscribe(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.subscribe(requestMessage)));
     }
 
-    private void unsubscribe(@NonNull UMessage requestMessage, @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.unsubscribe(requestMessage)));
+    private void unsubscribe(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.unsubscribe(requestMessage)));
     }
 
-    private void fetchSubscriptions(@NonNull UMessage requestMessage,
-            @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.fetchSubscriptions(requestMessage)));
+    private void fetchSubscriptions(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.fetchSubscriptions(requestMessage)));
     }
 
-    private void fetchSubscribers(@NonNull UMessage requestMessage,
-            @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.fetchSubscribers(requestMessage)));
+    private void fetchSubscribers(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.fetchSubscribers(requestMessage)));
     }
 
-    private void registerForNotifications(@NonNull UMessage requestMessage,
-            @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.registerForNotifications(requestMessage)));
+    private void registerForNotifications(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.registerForNotifications(requestMessage)));
     }
 
-    private void unregisterForNotifications(@NonNull UMessage requestMessage,
-            @NonNull CompletableFuture<UPayload> responseFuture) {
-        responseFuture.complete(packToAny(mSubscriptionHandler.unregisterForNotifications(requestMessage)));
+    private void unregisterForNotifications(@NonNull UMessage requestMessage) {
+        sendResponse(requestMessage, packToAny(mSubscriptionHandler.unregisterForNotifications(requestMessage)));
+    }
+
+    private void sendResponse(@NonNull UMessage requestMessage, @NonNull UPayload responsePayload) {
+        mUBus.send(buildResponseMessage(requestMessage, responsePayload), mClientToken);
     }
 
     public @NonNull UAuthority getDeviceAuthority() {

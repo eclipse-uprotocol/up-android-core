@@ -21,8 +21,8 @@ mockito = "4.6.1"
 robolectric = "4.7.3"
 room = "2.4.2"
 room-testing = "1.1.1"
-up-client-android-java = "v0.1.0-dev"
-up-java = "1.5.8"
+up-client-android-java = "v0.1.1-dev"
+up-java = "0.1.9"
 
 [libraries]
 android-material = { module = "com.google.android.material:material", version.ref = "android-material" }

@@ -24,10 +24,8 @@
 package org.eclipse.uprotocol.core.internal.handler;
 
 import static org.eclipse.uprotocol.common.util.UStatusUtils.isOk;
-import static org.eclipse.uprotocol.common.util.UStatusUtils.toStatus;
-import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildFailedResponseMessage;
-import static org.eclipse.uprotocol.core.internal.util.UMessageUtils.buildResponseMessage;
 import static org.eclipse.uprotocol.core.ubus.UBusManager.FLAG_BLOCK_AUTO_FETCH;
+import static org.eclipse.uprotocol.uri.validator.UriValidator.isRpcMethod;
 
 import android.os.IBinder;
 
@@ -36,17 +34,14 @@ import androidx.annotation.VisibleForTesting;
 
 import org.eclipse.uprotocol.core.internal.rpc.RpcExecutor;
 import org.eclipse.uprotocol.core.ubus.UBus;
-import org.eclipse.uprotocol.rpc.URpcListener;
 import org.eclipse.uprotocol.transport.UListener;
 import org.eclipse.uprotocol.v1.UEntity;
 import org.eclipse.uprotocol.v1.UMessage;
-import org.eclipse.uprotocol.v1.UPayload;
 import org.eclipse.uprotocol.v1.UStatus;
 import org.eclipse.uprotocol.v1.UUri;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
@@ -55,8 +50,8 @@ public class MessageHandler implements UListener {
     private final IBinder mClientToken;
     private final RpcExecutor mRpcExecutor;
     private final Executor mExecutor;
-    private final Map<UUri, URpcListener> mRequestListeners = new ConcurrentHashMap<>();
-    private final Map<UUri, Set<UListener>> mListeners = new ConcurrentHashMap<>();
+    private final Map<UUri, Set<UListener>> mGenericListeners = new ConcurrentHashMap<>();
+    private final Map<UUri, UListener> mRequestListeners = new ConcurrentHashMap<>();
 
     public MessageHandler(@NonNull UBus uBus, @NonNull UEntity entity, @NonNull IBinder clientToken) {
         this(uBus, entity, clientToken, Runnable::run);
@@ -75,7 +70,21 @@ public class MessageHandler implements UListener {
     }
 
     public boolean registerListener(@NonNull UUri uri, @NonNull UListener listener) {
-        final Set<UListener> registeredListeners = mListeners.compute(uri, (it, listeners) -> {
+        return isRpcMethod(uri) ? registerRequestListener(uri, listener) : registerGenericListener(uri, listener);
+    }
+
+    public boolean unregisterListener(@NonNull UUri uri, @NonNull UListener listener) {
+        return isRpcMethod(uri) ? unregisterRequestListener(uri, listener) : unregisterGenericListener(uri, listener);
+    }
+
+    public void unregisterAllListeners() {
+        mGenericListeners.forEach((uri, listeners) ->
+                listeners.forEach(listener -> unregisterGenericListener(uri, listener)));
+        mRequestListeners.forEach(this::unregisterRequestListener);
+    }
+
+    private boolean registerGenericListener(@NonNull UUri uri, @NonNull UListener listener) {
+        final Set<UListener> registeredListeners = mGenericListeners.compute(uri, (it, listeners) -> {
             if (listeners == null) {
                 listeners = ConcurrentHashMap.newKeySet();
                 final UStatus status = mUBus.enableDispatching(uri, FLAG_BLOCK_AUTO_FETCH, mClientToken);
@@ -89,9 +98,9 @@ public class MessageHandler implements UListener {
         return (registeredListeners != null);
     }
 
-    public boolean unregisterListener(@NonNull UUri uri, @NonNull UListener listener) {
+    private boolean unregisterGenericListener(@NonNull UUri uri, @NonNull UListener listener) {
         final var wrapper = new Object() { boolean removed = false; };
-        mListeners.computeIfPresent(uri, (it, listeners) -> {
+        mGenericListeners.computeIfPresent(uri, (it, listeners) -> {
             wrapper.removed = listeners.remove(listener);
             if (listeners.isEmpty()) {
                 mUBus.disableDispatching(uri, 0, mClientToken);
@@ -102,15 +111,15 @@ public class MessageHandler implements UListener {
         return wrapper.removed;
     }
 
-    public boolean registerRpcListener(@NonNull UUri uri, @NonNull URpcListener listener) {
-        final URpcListener registeredListener = mRequestListeners.computeIfAbsent(uri, it -> {
+    private boolean registerRequestListener(@NonNull UUri uri, @NonNull UListener listener) {
+        final UListener registeredListener = mRequestListeners.computeIfAbsent(uri, it -> {
             final UStatus status = mUBus.enableDispatching(uri, 0, mClientToken);
             return isOk(status) ? listener : null;
         });
         return (registeredListener == listener);
     }
 
-    public boolean unregisterRpcListener(@NonNull UUri uri, @NonNull URpcListener listener) {
+    private boolean unregisterRequestListener(@NonNull UUri uri, @NonNull UListener listener) {
         final var wrapper = new Object() { boolean removed = false; };
         mRequestListeners.computeIfPresent(uri, (it, registeredListener) -> {
             if (registeredListener != listener) {
@@ -123,54 +132,29 @@ public class MessageHandler implements UListener {
         return wrapper.removed;
     }
 
-    public void unregisterAllListeners() {
-        mRequestListeners.forEach(this::unregisterRpcListener);
-        mListeners.forEach((uri, listeners) ->
-                listeners.forEach(listener -> unregisterListener(uri, listener)));
-    }
-
     @VisibleForTesting
     boolean isRegistered(@NonNull UUri uri, @NonNull UListener listener) {
-        final Set<UListener> listeners = mListeners.get(uri);
-        return listeners != null && listeners.contains(listener);
-    }
-
-    @VisibleForTesting
-    boolean isRegistered(@NonNull UUri uri, @NonNull URpcListener listener) {
-        return mRequestListeners.get(uri) == listener;
-    }
-
-    private @NonNull CompletableFuture<UPayload> buildResponseFuture(@NonNull UMessage requestMessage) {
-        final CompletableFuture<UPayload> responseFuture = new CompletableFuture<>();
-        responseFuture.whenComplete((responsePayload, exception) -> {
-            final UMessage responseMessage;
-            if (exception != null) {
-                responseMessage = buildFailedResponseMessage(requestMessage, toStatus(exception).getCode());
-            } else if (responsePayload != null) {
-                responseMessage = buildResponseMessage(requestMessage, responsePayload);
-            } else {
-                return;
-            }
-            mUBus.send(responseMessage, mClientToken);
-        });
-        return responseFuture;
+        if (isRpcMethod(uri)) {
+            return mRequestListeners.get(uri) == listener;
+        } else {
+            final Set<UListener> listeners = mGenericListeners.get(uri);
+            return listeners != null && listeners.contains(listener);
+        }
     }
 
     @Override
     public void onReceive(@NonNull UMessage message) {
         switch (message.getAttributes().getType()) {
-            case UMESSAGE_TYPE_PUBLISH -> handleGenericMessage(message);
+            case UMESSAGE_TYPE_PUBLISH, UMESSAGE_TYPE_NOTIFICATION -> handleGenericMessage(message);
             case UMESSAGE_TYPE_REQUEST -> handleRequestMessage(message);
             case UMESSAGE_TYPE_RESPONSE -> handleResponseMessage(message);
-            default -> {
-                // Nothing to do
-            }
+            default -> { /* Nothing to do */ }
         }
     }
 
     private void handleGenericMessage(@NonNull UMessage message) {
         final UUri uri = message.getAttributes().getSource();
-        final Set<UListener> listeners = mListeners.get(uri);
+        final Set<UListener> listeners = mGenericListeners.get(uri);
         if (listeners != null) {
             mExecutor.execute(() -> listeners.forEach(listener -> listener.onReceive(message)));
         }
@@ -178,9 +162,9 @@ public class MessageHandler implements UListener {
 
     private void handleRequestMessage(@NonNull UMessage message) {
         final UUri uri = message.getAttributes().getSink();
-        final URpcListener listener = mRequestListeners.get(uri);
+        final UListener listener = mRequestListeners.get(uri);
         if (listener != null) {
-            mExecutor.execute(() -> listener.onReceive(message, buildResponseFuture(message)));
+            mExecutor.execute(() -> listener.onReceive(message));
         }
     }
 
